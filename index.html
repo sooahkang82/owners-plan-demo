@@ -167,6 +167,15 @@ details[open] summary::after{transform:rotate(-135deg);margin-top:2px}
 .cmp div{padding:14px 0}
 .cmp div+div{border-left:1px solid var(--line);padding-left:18px}
 .cmp .l{font-size:12.5px;color:var(--ink3)}.cmp .v{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.n3{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:18px}
+.n3>div{padding:18px 0}.n3>div+div{border-left:1px solid var(--line);padding-left:22px}
+.n3 .l{font-size:13px;color:var(--ink3);font-weight:600}.n3 .v{font-size:36px;font-weight:800;letter-spacing:-.04em;margin-top:2px;white-space:nowrap}
+.n3 .d{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.why{font-size:16px;font-weight:600;line-height:1.5;margin-top:4px}
+.ec{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:10px;background:#fff}
+.ec .h{display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:700;font-size:14.5px}
+.ec p{margin:6px 0 0;font-size:13.5px;color:var(--ink2);line-height:1.5}
+.ec details{margin-top:8px}.ec details small{display:block;font-size:12px;color:var(--ink3);margin-top:6px;line-height:1.5}
 .cmp.c4{grid-template-columns:repeat(4,1fr)}.cmp .d{font-size:12px;font-weight:700}.up{color:var(--no)}.dn{color:var(--ok)}
 .ck{list-style:none;margin:8px 0 0;padding:0}
 .ck li{padding:10px 0;border-top:1px solid var(--line);font-size:14px}
@@ -303,15 +312,15 @@ details[open] summary::after{transform:rotate(-135deg);margin-top:2px}
 .or.na .x{color:var(--ink3);font-weight:500!important}
 @media (max-width:900px){.oh{display:none}.or{grid-template-columns:1fr 1fr}.or>span:first-child{grid-column:1/-1}}
 /* 하단 이동 */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:400;background:linear-gradient(to top,var(--bg) 65%,rgba(246,246,249,0));padding:20px 28px 22px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:400;background:var(--bg);border-top:1px solid var(--line);padding:12px 28px 14px}
 .nav div{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:12px}
-.nav button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 22px;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s}
+.nav button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 20px;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s}
 .nav button.nx{background:var(--ink);border-color:var(--ink);color:#fff}
 .nav button:disabled{opacity:.3;cursor:default}
 
 @media (max-width:900px){
   .top-in{padding:12px 16px;gap:10px;flex-wrap:wrap}.steps{padding:0 16px 10px}.steps button{font-size:0}.steps button b{font-size:12px}
-  main{padding:24px 16px 120px}h1{font-size:26px}.hero{font-size:54px}
+  main{padding:24px 16px 110px}.n3 .v{font-size:24px}.n3>div+div{padding-left:12px}h1{font-size:26px}.hero{font-size:54px}
   .cols{grid-template-columns:1fr;gap:26px}.k4,.cmp,.cmp.c4{grid-template-columns:1fr 1fr}.k5{grid-template-columns:1fr 1fr}.vd{flex-direction:column;align-items:flex-start}.cmp.c4>div:nth-child(3){border-left:0;padding-left:0}.k4 div:nth-child(3){border-left:0;padding-left:0}
   .sl .g{grid-template-columns:1fr 1fr}.fund{flex-direction:column;align-items:stretch}.stack{width:100%;height:200px}
   #map{height:320px}.report{padding:22px}.gauge{margin:0 auto}.demo{display:none}.nav{padding:16px}
@@ -356,7 +365,14 @@ function won(v) {
 const pct = (v, d = 1) => (v * 100).toFixed(d) + '%';
 const stc = s => ({'가능성 높음':'okl','어려울 가능성 높음':'warnl','가능':'ok','양호':'ok','주의':'warn','확인 필요':'chk','판정 보류':'chk','불가':'no','예산 안':'ok','예산 초과':'no'}[s] || 'chk');
 const st = s => `<span class="st ${stc(s)}">${esc(s)}</span>`;
+// 사장님 화면의 출처 풍선에서는 파일 경로, 열 이름, 코드 용어를 쉬운 말로 바꾼다. 원래 경로는 심사 참고 화면과 docs/설명노트.md에서 볼 수 있다.
+const PLAIN = [[/data\/\S*재무요약\S*(\s?xlsx)?/g, '사업자 재무요약 데이터'], [/data\/\S*상권분석\S*(\s?CSV)?/gi, '상권분석 데이터'], [/data\/\S*임대매물\S*(\s?xlsx)?/g, '상가 임대매물 데이터'],
+  [/data\/\S*대출상품목록\S*(\s?xlsx)?/g, '대출상품 목록 데이터'], [/data\/\S*회원프로필\S*(\s?csv)?/gi, '회원 프로필 데이터'], [/config\/법령\/?\S*/g, '저장해 둔 법령 조문'],
+  [/config\/\S+/g, '기준값 설정'], [/engine\/\S+/g, '계산 코드'], [/\.claude\/\S+/g, '판단 규칙 문서'], [/korean-law-mcp로 조회해/g, '국가법령정보에서 조회해'],
+  [/\s*\(PRD [^)]*\)/g, ''], [/PRD [\d-]+(,\s*)?/g, ''], [/\s*\(R\d+-\d\)/g, ''], [/FM\d{6}/g, '이 사장님'], [/\(([^()]*)\s열\)/g, '($1)'], [/engine/g, '코드']];
+const plain = s => view === 'staff' ? s : PLAIN.reduce((x, [a, b]) => x.replace(a, b), String(s || ''));
 function dot(mark, src) {            // 숫자 옆 작은 점: 누르면 표시와 출처
+  src = plain(src);
   const m = mark || '데이터';
   const c = m.includes('추정') ? 'est' : m.includes('가정') ? 'asm' : m.includes('근사') ? 'apx' : m.includes('확인') ? 'chk' : '';
   return `<button class="dot ${c}" data-tip="${esc(m)}|${esc(src || '')}" aria-label="${esc(m)} · 출처 보기"></button>`;
@@ -575,18 +591,18 @@ function p3() {
   return `<div class="kicker">3 / 6 · 매물·필요 자금</div><h1>가게를 여는 데<br>이만큼 들어요</h1>
   <div class="cols">
     <div>
-      <div class="rv"><div class="hero">${cnt(tot.값, 'won')}${dot(tot.표시, tot.출처)}</div><div class="one">매물 ${esc(listing().id)} 기준 · 권리금과 인테리어는 상한으로 계산</div></div>
+      <div class="rv"><div class="hero">${cnt(tot.값, 'won')}${dot(tot.표시, tot.출처)}</div><div class="one">고른 매물(${esc(listing().건물)} ${esc(listing().층)}층 · ${listing().평}평) 기준 · 권리금과 인테리어는 높은 쪽으로 계산${dot('', '매물 번호 ' + listing().id)}</div></div>
       <div class="fund rv" style="margin-top:28px">
         <div class="stack">${keys.map((k, i) => `<div class="blk c${i + 1}" style="flex-basis:${(f[k].값 || 0) / sum * 100}%;animation-delay:${i * 160}ms" title="${k}"></div>`).join('')}</div>
         <div class="lg">${keys.slice().reverse().map(k => { const i = keys.indexOf(k); return `<div><span><i class="blk c${i + 1}" style="animation:none"></i>${k}</span><b>${won(f[k].값)}${dot(f[k].표시, f[k].출처)}</b></div>`; }).join('')}</div>
       </div>
-      <div class="one rv">빌릴 금액 ${won(D.부족자금)}${dot('가정', '자기자본 데이터가 없어 희망자금을 부족 자금으로 봄 (PRD 6-5)')} · 나머지 ${won(tot.값 - D.부족자금)}은 ${D.요약.가진자금 != null ? (D.요약.가진자금 >= tot.값 - D.부족자금 ? `가진 자금 ${won(D.요약.가진자금)}으로 낼 수 있어요` : `자기자본이 필요한데 가진 자금은 ${won(D.요약.가진자금)}이라 <b style="color:var(--no)">${won(tot.값 - D.부족자금 - D.요약.가진자금)} 모자라요</b>`) : '자기자본 확인'}${dot(D.요약.가진자금 != null ? '' : '확인 필요', '총 필요 자금 − 희망 대출 금액' + (D.요약.가진자금 != null ? ' 을 사장님이 입력한 가진 자금과 비교' : ''))}</div>
+      <div class="one rv">빌릴 금액 ${won(D.부족자금)}${dot('가정', '자기자본 데이터가 없어 희망 대출 금액을 빌릴 금액으로 봤어요')} · 나머지 ${won(tot.값 - D.부족자금)}은 ${D.요약.가진자금 != null ? (D.요약.가진자금 >= tot.값 - D.부족자금 ? `가진 자금 ${won(D.요약.가진자금)}으로 낼 수 있어요` : `자기자본이 필요한데 가진 자금은 ${won(D.요약.가진자금)}이라 <b style="color:var(--no)">${won(tot.값 - D.부족자금 - D.요약.가진자금)} 모자라요</b>`) : '자기자본 확인'}${dot(D.요약.가진자금 != null ? '' : '확인 필요', '총 필요 자금 − 희망 대출 금액' + (D.요약.가진자금 != null ? ' 을 사장님이 입력한 가진 자금과 비교' : ''))}</div>
     </div>
     <div>
       <b class="rv">매물을 골라 보세요</b> <span class="muted" style="font-size:12.5px">거래중 ${m.거래중건수}건</span>
       <div class="lst" style="margin-top:12px">${m.선택.map((l, i) => `<button class="li rv" data-pick="${i}" aria-pressed="${i === pick}"><b>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</b>${st(l.예산)}<small>보증금 ${won(l.보증금)} · 월 ${won(l.월세 + l.관리비)} · 직전 ${esc(l.직전업종)}</small></button>`).join('')}</div>
-      ${m.미확정.length ? `<details class="rv"><summary>상권 미확정 후보 ${m.미확정.length}건</summary><div class="dl">${m.미확정.map(l => `<div><span>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</span><span>${won(l.보증금)}</span></div>`).join('')}</div><p class="mapnote">상권명이 비어 있어 ${esc(D.요약.관심지역)} 매물로 확정하지 않았어요</p></details>` : ''}
-      <details class="rv"><summary>정렬 기준과 출처</summary><ul class="srcs"><li>${esc(m.정렬기준)} (가정)</li><li>${esc(m.출처)}</li><li>${API ? '매물을 고르면 그 매물로 전체를 다시 계산해요' : '대출 조합은 첫 번째 매물 기준으로 계산돼 있어요 (로컬 서버로 열면 고른 매물로 다시 계산돼요)'}</li></ul></details>
+      ${m.미확정.length ? `<details class="rv"><summary>근처 다른 매물 ${m.미확정.length}건 (위치 확인 필요)</summary><div class="dl">${m.미확정.map(l => `<div><span>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</span><span>${l.합계 != null ? '보증금+권리금 ' + won(l.합계) : '보증금 ' + won(l.보증금)}</span></div>`).join('')}</div><p class="mapnote">주소상 ${esc(D.요약.관심지역)} 근처지만 정확한 상권은 확인이 필요해요</p></details>` : ''}
+      <details class="rv"><summary>정렬 기준과 출처</summary><ul class="srcs"><li>예산 안 → 직전 업종이 같은 매물 → 1층 → 월세 낮은 순으로 보여 드려요</li><li>출처: 핀다 제공 상가 임대매물 데이터(2026년 8~11월, 거래 중 매물)</li>${API ? '<li>매물을 고르면 그 매물로 전체를 다시 계산해요</li>' : ''}</ul></details>
     </div>
   </div>`;
 }
@@ -601,46 +617,61 @@ function todoItems() {
   ex.push(['기존 대출의 실제 금리', '지금은 한국은행 평균 (가정)']);
   return ex.concat([...map].map(([c, ps]) => [c, ps.join(', ')]));
 }
+// 체크리스트에서 이 사장님에게 영향이 큰 것부터: 자기자본 → 현재 사업장 → 지금 조합에 든 상품의 확인 사항 → 보증서·창업 인정 → 걸린 상품이 많은 순
+function todoTop(todo) {
+  const inCombo = new Set(['기본', '확인시'].flatMap(k => D.조합[k] ? D.조합[k].rows.map(r => r.상품명) : []));
+  const score = ([a, b]) => (a.startsWith('자기자본') ? 100 : 0) + (a.startsWith('현재 사업장') ? 90 : 0) + (b.split(', ').some(x => inCombo.has(x)) ? 40 : 0)
+    + (/보증서|창업 범위|소상공인 확인서/.test(a) ? 30 : 0) + (a.startsWith('기존 대출') ? 5 : 0) + Math.min(b.split(', ').length, 5);
+  return todo.map((x, i) => [x, score(x), i]).sort((p, q) => q[1] - p[1] || p[2] - q[2]).map(x => x[0]);
+}
+function whyLine(c) {       // 왜 이 조합인지: 쉬운 말 한 줄. 자세한 숫자는 '자세히'에
+  const s = c.선택; if (!s) return '';
+  if (s.상환어려움) return '지금 조건으로는 매달 감당할 수 있는 조합이 없어요. 부담이 가장 작은 조합을 참고로 보여 드려요';
+  const cost = c.보증료 > 0.5 ? '이자와 보증료가' : '이자가', pool = s.안전상환 == null ? '만들 수 있는 조합 중' : '매달 갚을 수 있는 조합 중';
+  if (s.방식 !== '생존 확률') return `매물이 정해지지 않아, ${pool} ${cost} 가장 적은 조합을 골랐어요`;
+  return s.동률수 > 1 ? `${pool} 가게가 가장 오래 버티고, 그중 ${cost} 가장 적어요` : `${pool} 가게가 가장 오래 버텨요`;
+}
 function p4() {
   const A = D.조합.기본, B = D.조합.확인시, c = combo(), n = D.판정수;
   if (!c) return `<div class="kicker">4 / 6 · 대출 조합</div><h1>조합할 상품이 없어요</h1>${reviewBox()}`;
-  const other = c === A ? B : A, d = k => other ? c[k] - other[k] : null;
-  const dl = (v, unit) => v == null || Math.abs(v) < .05 ? '' : `<div class="d ${v > 0 ? 'up' : 'dn'}">${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(0)}${unit} ${c === B ? '기본 대비' : '확인 시 대비'}</div>`;
-  const todo = todoItems();
+  const isB = c === B && A, d = k => isB ? c[k] - A[k] : null;        // 차이는 '확인 시 조합' 탭에서만 보여 준다
+  const dl = v => v == null || Math.abs(v) < .5 ? '' : ` · 기본 조합보다 ${won(Math.abs(v))} ${v > 0 ? '많아요' : '적어요'}`;
+  const todo = todoTop(todoItems()), sv = c.선택 && c.선택.생존확률 != null ? c.선택.생존확률 : null;
+  const safe = !D.안전상환 ? ['chk', '감당 가능 여부 확인 필요', '기존 가게의 월 여유 현금을 알 수 없어 확인이 필요해요'] : c.최대월 <= D.안전상환 ? ['ok', '매달 감당 가능 ✓', ''] : ['no', '매달 감당하기 어려워요', ''];
+  const li = ([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`;
   return `<div class="kicker">4 / 6 · 대출 조합</div><h1>${won(c.금액)}, 이렇게 채워요</h1>
   ${reviewBox()}${D.참고용 ? `<div class="alert w rv"><i></i><div><b>참고용(매물 확정 전)</b><span>희망자금만으로 계산했어요</span></div></div>` : ''}
   <div style="margin-top:26px" class="rv">${B && A ? `<div class="tabs" role="tablist"><button role="tab" data-tab="기본" aria-selected="${tab === '기본'}">기본 조합</button><button role="tab" data-tab="확인시" aria-selected="${tab === '확인시'}">확인 시 조합</button></div>` : ''}
     <div class="puz">${c.rows.map((r, i) => `<div class="pc k${i + 1}" style="flex:${r.금액} 1 0;animation-delay:${i * 180}ms"><b>${won(r.금액)}</b>${esc(r.상품명)}</div>`).join('')}${c.못채움 > 0 ? `<div style="flex:${c.못채움} 1 0;display:grid;place-content:center;font-size:12px;color:var(--ink3)">못 채움 ${won(c.못채움)}</div>` : ''}</div>
   </div>
-  <div class="cols">
+  <div class="n3 rv">
+    <div><div class="l">${c.거치있음 ? '거치 후 ' : ''}가장 많이 내는 달${dot('가정', '적용 금리는 범위 중간값, 대출 기간은 상품 최대 기간으로 계산. 출처: 핀다 제공 대출상품 목록 데이터')}</div><div class="v">${cnt(c.최대월, 'won')}</div><div class="d">${c.거치있음 ? '거치 중' : '첫 달'} ${won(c.첫달)}${dl(d('최대월'))}</div></div>
+    <div><div class="l">총이자</div><div class="v">${cnt(c.총이자, 'won')}</div><div class="d">${c.보증료 > 0.5 ? `보증료 ${won(c.보증료)} 별도${dot('가정', '보증료 = 원금 × 보증료율 × 대출 기간. 보증료율은 상품 문구의 값(범위면 중간값)')}` : '대출 기간 전체'}${dl(d('총이자'))}</div></div>
+    <div><div class="l">생존 확률${dot('가정', '5단계 생존 확률과 같은 계산이에요. 가정이 많은 값이라 참고로 봐 주세요')}</div><div class="v">${sv != null ? pct(sv, 0) : '계산 전'}</div><div class="d">${sv != null ? '이 조합으로 새 가게가 버틸 확률' : '매물이 정해져야 계산해요'}</div></div>
+  </div>
+  <div class="rv" style="margin-top:16px"><div class="sumrow"><span class="st ${safe[0]}" style="font-size:13.5px;padding:6px 14px">${safe[1]}</span>${dot('가정', safe[2] || '가장 많이 내는 달의 상환액 ' + won(c.최대월) + ' ≤ 안전 기준 ' + won(D.안전상환) + ' (기존 가게 월 여유 현금의 50%)')}</div>
+    <div class="why">${esc(whyLine(c))}</div></div>
+  <div class="cols" style="margin-top:22px">
     <div>
-      ${c.선택 && c.선택.한줄 ? `<div class="one rv" style="margin-top:0;margin-bottom:18px"><b>왜 이 조합인가요</b> ${esc(c.선택.한줄)}${dot('가정', c.선택.이유 + ' · 기준: ' + c.선택.기준)}</div>` : ''}
-      <div class="rv"><div class="hero">${cnt(c.최대월, 'won')}</div><div class="one">${c.거치있음 ? '거치가 끝난 뒤 ' : ''}가장 많이 내는 달의 상환액${dot('가정', '적용 금리는 범위 중간값, 대출 기간은 상품 최대 기간. 금리·기간 출처: data/소상공인_대출상품목록 xlsx')}</div></div>
-      <div class="cmp c4 rv">
-        <div><div class="l">${c.거치있음 ? '거치 중 월 상환액' : '첫 달 상환액'}</div><div class="v">${cnt(c.첫달, 'won')}</div>${dl(d('첫달'), '만')}</div>
-        <div><div class="l">총이자</div><div class="v">${cnt(c.총이자, 'won')}</div>${dl(d('총이자'), '만')}${c.보증료 > 0.5 ? `<div class="d muted">보증료 ${won(c.보증료)} 별도${dot('가정', '보증료 = 원금 × 보증료율 × 대출 기간. 보증료율은 상품 문구의 값(범위면 중간값). 총 비용 ' + won(c.총비용))}</div>` : ''}</div>
-        <div><div class="l">생존 확률</div><div class="v">${c.선택 && c.선택.생존확률 != null ? pct(c.선택.생존확률, 0) : '확인 필요'}</div><div class="d muted">${c.선택 && c.선택.생존확률 != null ? '이 조합으로 새 가게가 버틸 확률' : '매물이 정해져야 계산해요'}${dot('가정', '5단계 생존 확률과 같은 계산. 조합 후보마다 계산해 가장 높은 조합을 골랐어요')}</div></div>
-        <div><div class="l">안전 기준</div><div class="v">${D.안전상환 ? (c.최대월 <= D.안전상환 ? '기준 안' : '기준 초과') : '확인 필요'}</div><div class="d muted">${D.안전상환 ? '월 ' + won(D.안전상환) + ' 이하' : ''}${dot('가정', '월 상환액 ≤ 월 여유 현금의 50% (PRD 4-6)')}</div></div>
-      </div>
-      ${c.경고.map(x => `<div class="alert w rv"><i></i><div><span>${esc(x)}</span></div></div>`).join('')}
-      ${(D.조합.확인시제외 || []).length ? `<div class="rv" style="margin-top:14px"><b style="font-size:14px">확인 시 조합에서도 뺀 상품</b>${dot('', 'AI 자격 해석에서 어려울 가능성이 높다고 본 상품은 확인 시 조합에도 넣지 않았어요. 최종 자격은 금융사·보증기관이 정해요')}<div class="dl">${D.조합.확인시제외.map(x => `<div><span>${esc(x.상품명)} <span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span><br><span class="muted">${esc(x.이유)}</span></span><span></span></div>`).join('')}</div></div>` : ''}
-      ${c.최소비용 ? `<details class="rv"><summary>총 비용이 가장 적은 조합과 비교</summary>${c.선택.최소비용과같음 ? `<p class="one" style="margin:10px 0 0">지금 조합이 총 비용도 가장 적어요 (총이자 ${won(c.총이자)}${c.보증료 > 0.5 ? ' + 보증료 ' + won(c.보증료) : ''}).</p>` : `<div class="dl">
-        <div><span><b>총 비용이 가장 적은 조합</b><br><span class="muted">${c.최소비용.rows.map(r => esc(r.상품명) + ' ' + won(r.금액)).join(' + ')}</span></span><span></span></div>
+      ${c.경고.map(x => `<div class="alert w rv" style="margin-top:0;margin-bottom:10px"><i></i><div><span>${esc(plain(x.replace(/^LP\d+: /, '')))}</span></div></div>`).join('')}
+      ${c.선택 ? `<details class="rv" style="margin-top:8px"><summary>왜 이 조합인지 자세히</summary><ul class="srcs"><li>${esc(c.선택.이유)}</li></ul>
+        ${c.최소비용 && !c.선택.최소비용과같음 ? `<div class="dl">
+        <div><span><b>비교: 총 비용이 가장 적은 조합</b><br><span class="muted">${c.최소비용.rows.map(r => esc(r.상품명) + ' ' + won(r.금액)).join(' + ')}</span></span><span></span></div>
         <div><span>총 비용 (총이자 + 보증료)</span><span>${won(c.최소비용.총비용)}<br><span class="muted">지금 조합 ${won(c.총비용)}</span></span></div>
         <div><span>가장 많이 내는 달의 상환액</span><span>${won(c.최소비용.최대월)}<br><span class="muted">지금 조합 ${won(c.최대월)}</span></span></div>
-        <div><span>생존 확률</span><span>${c.최소비용.생존확률 == null ? '확인 필요' : pct(c.최소비용.생존확률)}<br><span class="muted">${c.최소비용.생존확률 == null || c.선택.생존확률 == null ? '매물이 정해져야 계산해요' : '지금 조합 ' + pct(c.선택.생존확률) + ' · 지금 조합이 ' + ((c.선택.생존확률 - c.최소비용.생존확률) * 100).toFixed(1) + '%p 높아요'}</span></span></div>
-      </div>${(c.최소비용.경고 || []).map(x => `<div class="alert w" style="margin-top:12px"><i></i><div><span>${esc(x)}</span></div></div>`).join('')}`}<ul class="srcs"><li>${esc(c.선택.이유)}</li><li>기준: ${esc(c.선택.기준)} (가정)</li></ul></details>` : ''}
-      <details class="rv"><summary>상품별 조건</summary><div class="dl">${c.rows.map(r => `<div><span>${esc(r.상품명)} ${st(r.상태)}<br><span class="muted">${esc(r.금융사)} · ${esc(r.상환방식)} · ${r.기간}개월</span></span><span>${r.최저금리}~${r.최고금리}%<br><span class="muted">${r.첫달.toFixed(1)}만 → ${r.최대월.toFixed(1)}만</span></span></div>`).join('')}</div></details>
+        <div><span>생존 확률</span><span>${c.최소비용.생존확률 == null ? '계산 전' : pct(c.최소비용.생존확률)}<br><span class="muted">${c.최소비용.생존확률 == null || sv == null ? '매물이 정해져야 계산해요' : '지금 조합 ' + pct(sv)}</span></span></div>
+      </div>${(c.최소비용.경고 || []).map(x => `<div class="alert w" style="margin-top:12px"><i></i><div><span>${esc(plain(x.replace(/^LP\d+: /, '')))}</span></div></div>`).join('')}` : ''}</details>` : ''}
+      <details class="rv"><summary>상품별 조건</summary><div class="dl">${c.rows.map(r => `<div><span>${esc(r.상품명)} ${st(r.상태)}<br><span class="muted">${esc(r.금융사)} · ${esc(r.상환방식)} · ${r.기간}개월</span></span><span>${r.최저금리}~${r.최고금리}%<br><span class="muted">월 ${r.첫달.toFixed(1)}만 → ${r.최대월.toFixed(1)}만</span></span></div>`).join('')}</div></details>
+      <details class="rv"><summary><span class="sumrow">상품 20개 판정 <span class="st ok">가능 ${n['가능'] || 0}</span><span class="st chk">확인 필요 ${n['확인 필요'] || 0}</span><span class="st no">불가 ${n['불가'] || 0}</span></span></summary>
+        <div>${D.상품.slice().sort((a, b) => ({'가능': 0, '확인 필요': 1, '불가': 2}[a.상태] - {'가능': 0, '확인 필요': 1, '불가': 2}[b.상태]) || a.최고금리 - b.최고금리).map(p => `<div class="pr"><span>${esc(p.상품명)}<small>${esc(plain((p.상태 === '불가' ? p.사유 : p.확인.concat(p.메모)).join(' · ') || p.금융사))}</small></span><span style="text-align:right;flex:none">${st(p.상태)}<small>${p.최저금리}~${p.최고금리}%${p.상태 !== '불가' && p.한도_만원 ? ' · ' + won(p.한도_만원) : ''}</small></span></div>`).join('')}</div>
+      </details>
     </div>
     <div>
-      <div class="rv"><b>확인 체크리스트</b> <span class="muted" style="font-size:12.5px">${todo.length}개</span>
-        <ul class="ck">${todo.slice(0, 5).map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul>
-        ${todo.length > 5 ? `<details><summary>${todo.length - 5}개 더 보기</summary><ul class="ck">${todo.slice(5).map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>` : ''}
+      <div class="rv"><b>먼저 확인할 것</b> <span class="muted" style="font-size:12.5px">${Math.min(3, todo.length)}개</span>
+        <ul class="ck">${todo.slice(0, 3).map(li).join('')}</ul>
+        ${todo.length > 3 ? `<details><summary>${todo.length - 3}개 더 보기</summary><ul class="ck">${todo.slice(3).map(li).join('')}</ul></details>` : ''}
       </div>
       ${eligBlock()}
-      <details class="rv"><summary><span class="sumrow">상품 20개 판정 <span class="st ok">가능 ${n['가능'] || 0}</span><span class="st chk">확인 필요 ${n['확인 필요'] || 0}</span><span class="st no">불가 ${n['불가'] || 0}</span></span></summary>
-        <div>${D.상품.slice().sort((a, b) => ({'가능': 0, '확인 필요': 1, '불가': 2}[a.상태] - {'가능': 0, '확인 필요': 1, '불가': 2}[b.상태]) || a.최고금리 - b.최고금리).map(p => `<div class="pr"><span>${esc(p.상품명)}<small>${esc((p.상태 === '불가' ? p.사유 : p.확인.concat(p.메모)).join(' · ') || p.금융사)}</small></span><span style="text-align:right;flex:none">${st(p.상태)}<small>${p.최저금리}~${p.최고금리}%${p.상태 !== '불가' && p.한도_만원 ? ' · ' + won(p.한도_만원) : ''}</small></span></div>`).join('')}</div>
-      </details>
     </div>
   </div>`;
 }
@@ -658,7 +689,7 @@ function p5() {
     <div class="rv">
       <div class="gauge"><svg viewBox="0 0 240 240" width="240" height="240"><circle class="bg" cx="120" cy="120" r="${R}"/><circle class="fg" id="gf" cx="120" cy="120" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-to="${ok ? C * (1 - v.생존확률) : C}"/></svg>
         <div class="c">${ok ? `<b>${cnt(v.생존확률, 'pct0')}</b><span>${v.횟수.toLocaleString('ko-KR')}번 중 버틴 비율</span>` : `<b style="font-size:24px;letter-spacing:-.03em">모델 보완 중</b><span>곧 숫자로 보여 드려요</span>`}</div></div>
-      <div class="one" style="text-align:center">${D.조합.확인시 ? (tab === '확인시' ? '확인 시 조합' : '기본 조합') + ' 기준' : ''}${dot('가정', '월별 잔고를 여러 번 돌려 한 번도 0 아래로 내려가지 않은 비율. 입력값의 가정은 아래 "입력값과 출처" 참고')}</div>
+      <div class="one" style="text-align:center">${D.조합.확인시 ? (tab === '확인시' ? '확인 시 조합' : '기본 조합') + ' 기준' : ''}${dot('가정', '월별 잔고를 여러 번 돌려 한 번도 0 아래로 내려가지 않은 비율. 어떤 값을 넣었는지는 아래 "입력값과 출처"에서 볼 수 있어요')}</div>
     </div>
     <div>
       <div class="rv" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="legend"><span><i></i>잔고 중앙값</span><span><i class="d"></i>하위 10% 선</span></div><button class="play" id="play">▶ 재생</button></div>
@@ -671,13 +702,13 @@ function p5() {
         <div class="chip"><div class="l">하위 10%가 0 아래</div><div class="v">${v.하위10_첫음수월 == null ? '없음' : v.하위10_첫음수월 + '개월차'}</div></div>
       </div>
       ${v.경고.map(x => `<div class="alert w rv"><i></i><div><span>${esc(x.split(' (')[0])}</span></div></div>`).join('')}
-      ${v.손익 ? `<div class="rv" style="margin-top:18px"><b>왜 이 확률인가요</b>${dot('가정', '월 손익 = 매출 × (1 − 변동비율) − 고정비. 고정비는 월세·관리비, 인건비, 공과금, 대출 상환, 기존 대출 이자, 새 점포 생활비 부담. 변동비는 재료비, 카드 수수료, 기타 변동비. 표는 회차 평균')}
+      ${v.손익 ? `<details class="rv"><summary>왜 이 확률인가요</summary><div><span></span>${dot('가정', '월 손익 = 매출 × (1 − 변동비율) − 고정비. 고정비는 월세·관리비, 인건비, 공과금, 대출 상환, 기존 대출 이자, 새 점포 생활비 부담. 변동비는 재료비, 카드 수수료, 기타 변동비. 표는 회차 평균')}
         <div class="dl">${Object.entries(v.손익).filter(([, x]) => x).map(([k, x]) => `<div><span>${esc(k)} ${x.회차수.toLocaleString('ko-KR')}번 · 월 매출 ${won(x.월매출)}</span><span>월 ${x.월손익 >= 0 ? '+' : ''}${won(x.월손익)} · 생존 ${pct(x.생존확률, 0)}</span></div>`).join('')}
         <div><span>월 고정비 ${won(v.고정비_만원 + (v.손익['정상 회차'] ? v.손익['정상 회차'].대출상환 : 0))} · 변동비 매출의 ${pct(v.변동비율, 0)}</span><span>손익분기 매출 ${won(v.손익분기매출_만원)}</span></div></div>
         ${v.업종평균가정 && v.업종평균가정.length ? `<div class="mapnote"><span class="st chk">업종 평균 가정</span> ${esc(v.업종평균가정.join(' · '))}은 같은 업종 자료가 없어 전 업종 평균을 썼어요</div>` : ''}
-        <div class="mapnote"><span class="st chk">보정한 가정</span> 부진 점포 확률과 부진 매출 범위는 상권 폐업률에 맞춰 조정했어요${v.데이터_36개월생존율 != null ? ` · 36개월 생존 ${pct(v.생존확률_36, 0)} (데이터 환산 ${pct(v.데이터_36개월생존율, 0)})` : ''}</div></div>` : ''}
+        <div class="mapnote"><span class="st chk">보정한 가정</span> 부진 점포 확률과 부진 매출 범위는 상권 폐업률에 맞춰 조정했어요${v.데이터_36개월생존율 != null ? ` · 36개월 생존 ${pct(v.생존확률_36, 0)} (데이터 환산 ${pct(v.데이터_36개월생존율, 0)})` : ''}</div></div></details>` : ''}
       ${v.생활비기준_만원 != null && v.입력['고정비: 새 점포 생활비 부담'] ? `<div class="one rv">새 점포가 내는 생활비 <b>월 ${won(v.생활비반영_만원)}</b>${dot(v.입력['고정비: 새 점포 생활비 부담'].표시, v.입력['고정비: 새 점포 생활비 부담'].출처)}${v.기존가게여유현금_만원 != null ? ` · 생활비 ${won(v.생활비기준_만원)} − 기존 가게 여유 현금 ${won(v.기존가게여유현금_만원)}` : ''}</div>` : ''}
-      ${v.민감도 ? `<details class="rv" open><summary>가정을 바꾸면</summary><div class="dl">${Object.entries(v.민감도).map(([k, x]) => `<div><span>${esc(k)}${dot('가정', '같은 난수로 이 가정 하나만 바꿔 다시 계산한 생존 확률')}</span><span>${pct(x)}</span></div>`).join('')}</div></details>` : ''}
+      ${v.민감도 ? `<details class="rv"><summary>가정을 바꾸면</summary><div class="dl">${Object.entries(v.민감도).map(([k, x]) => `<div><span>${esc(k)}${dot('가정', '같은 난수로 이 가정 하나만 바꿔 다시 계산한 생존 확률')}</span><span>${pct(x)}</span></div>`).join('')}</div></details>` : ''}
       <details class="rv"><summary>입력값과 출처</summary><div class="dl">${Object.entries(v.입력).map(([k, x]) => `<div><span>${esc(k)}${dot(x.표시, x.출처)}</span><span>${Array.isArray(x.값) ? x.값.map(n => n.toLocaleString('ko-KR')).join('~') + '만' : typeof x.값 === 'object' && x.값 ? Object.values(x.값).join(' / ') : esc(x.값)}</span></div>`).join('')}</div></details>
     </div>
   </div>`;
@@ -719,12 +750,16 @@ const RULE_LABEL = {R1: '출점 유형', R2: '추정값 적용', R3: '상권 위
 const ruleLabel = r => r === 'R4-8' ? '출점 재검토' : RULE_LABEL[String(r || '').slice(0, 2)] || '판단';
 /* ---------- AI가 직접 판단하는 세 가지 (R7 자격 해석, R8 선택지 비교, R9 심사 의견) ---------- */
 const vcls = s => ({'가능': 'ok', '가능성 높음': 'okl', '어려울 가능성 높음': 'warnl', '불가': 'no', '확인 필요': 'chk', '승인 권고': 'ok', '조건부': 'warn', '보류': 'no'}[s] || 'chk');
-function eligBlock() {      // 4단계: 코드가 '확인 필요'로 남긴 상품을 AI가 상품 문구로 해석
+function eligBlock() {      // 4단계: 코드가 '확인 필요'로 남긴 상품을 AI가 상품 문구와 법령으로 해석. 판정이 바뀐 상품만 카드로 보여 준다
   if (!ADV || !ADV.자격해석 || !ADV.자격해석.length) return '';
-  const n = {}; ADV.자격해석.forEach(x => n[x.AI판정] = (n[x.AI판정] || 0) + 1);
-  return `<details class="rv" open><summary><span class="sumrow">AI 자격 해석 ${ADV.자격해석.length}건 ${Object.entries(n).map(([k, c]) => `<span class="st ${vcls(k)}">${esc(k)} ${c}</span>`).join('')}</span></summary>
-    <div>${ADV.자격해석.map(x => `<div class="pr" data-rule="${esc(x.규칙)}"><span>${esc(x.상품명)}${x.판정바뀜 ? ' <span class="st warn" style="padding:2px 8px">판정 바뀜</span>' : ''}<small>상품 문구 “${esc(x.인용)}”</small>${x.법령 ? `<small>법령 ${esc(x.법령.법령명)} ${esc(x.법령.조문번호)}(${esc(x.법령.조문제목)}) “${esc(x.법령.인용문)}”${dot('', '시행일 ' + x.법령.시행일 + ' · 조회일 ' + x.법령.조회일 + ' · korean-law-mcp로 조회해 config/법령/에 저장한 원문과 글자 그대로 대조')}</small>` : ''}<small style="color:var(--ink2)">${esc(x.이유)}</small>${x.판정바뀜 ? `<small>${esc(x.조합반영 || '')}</small>` : ''}</span><span style="text-align:right;flex:none"><span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span></span></div>`).join('')}</div>
-    <p class="mapnote">${esc(ADV.자격해석_안내 || '').replace(/\s*\(R\d-\d\)/, '')}</p></details>`;
+  const ch = ADV.자격해석.filter(x => x.판정바뀜), rest = ADV.자격해석.filter(x => !x.판정바뀜);
+  const proof = x => `<small>상품 문구 “${esc(x.인용)}”</small>${x.법령 ? `<small>${esc(x.법령.법령명)} ${esc(x.법령.조문번호)}(${esc(x.법령.조문제목)}) “${esc(x.법령.인용문)}”${dot('', '시행일 ' + x.법령.시행일 + ' · 조회일 ' + x.법령.조회일 + ' · 저장해 둔 조문 원문과 글자 그대로 대조했어요')}</small>` : ''}`;
+  const hard = x => x.AI판정 === '어려울 가능성 높음' || x.AI판정 === '불가';
+  return `<div class="rv" style="margin-top:26px"><b>AI가 다시 본 상품</b> <span class="muted" style="font-size:12.5px">${ch.length}개</span>
+    ${ch.length ? ch.map(x => `<div class="ec" data-rule="${esc(x.규칙)}"><div class="h"><span>${esc(x.상품명)}</span><span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span></div>
+      <p>${esc(x.이유)}${hard(x) ? ' 그래서 확인 시 조합에서도 뺐어요.' : ''}</p><details><summary>근거 보기</summary>${proof(x)}</details></div>`).join('') : '<p class="mapnote">AI가 판정을 바꾼 상품은 없어요</p>'}
+    ${rest.length ? `<details><summary>나머지 ${rest.length}개 상품은 데이터가 없어 확인이 필요해요</summary><div>${rest.map(x => `<div class="pr"><span>${esc(x.상품명)}<small style="color:var(--ink2)">${esc(x.이유)}</small>${proof(x)}</span><span style="text-align:right;flex:none"><span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span></span></div>`).join('')}</div></details>` : ''}
+    <p class="mapnote">AI 판정은 참고예요. 최종 자격은 금융사·보증기관이 정해요.</p></div>`;
 }
 function alertBox() {      // 관심 상권에 매물이 없을 때: 매물 알림 받기 (데모: 실제 알림은 보내지 않고 누른 기록만 화면에 남긴다)
   const mm = (D.선택지기준 || {}).매물없음; if (!mm) return '';
@@ -755,9 +790,9 @@ function aiBlock() {
   if (!AI || !AI.문장 || !AI.문장.length) return `<div class="ai"><p class="muted">${AIWAIT ? 'AI 해석 준비 중이에요 · 숫자는 먼저 보여 드려요' : AIERR ? 'AI 해석을 받지 못했어요 (' + esc(AIERR) + ') · 숫자는 그대로 볼 수 있어요' : 'AI 해석은 준비 중이에요'}</p></div>`;
   const order = ['R4-8', 'R6', 'R3', 'R4', 'R2', 'R5', 'R1'], rank = r => { const i = order.findIndex(k => r.startsWith(k)); return i < 0 ? 9 : i; };
   const sorted = AI.문장.map((s, i) => [s, i]).sort((x, y) => rank(x[0].규칙) - rank(y[0].규칙) || x[1] - y[1]).map(x => x[0]);
-  const top = sorted.slice(0, 6), rest = sorted.slice(6), line = s => `<p>${esc(s.문장)}<em data-rule="${esc(s.규칙)}">${esc(ruleLabel(s.규칙))}</em></p>`;
+  const top = sorted.slice(0, 3), rest = sorted.slice(3), line = s => `<p>${esc(s.문장)}<em data-rule="${esc(s.규칙)}">${esc(ruleLabel(s.규칙))}</em></p>`;
   return `<div class="ai">${AI.한줄요약 ? `<p><b>${esc(AI.한줄요약)}</b></p>` : ''}${top.map(line).join('')}${rest.length ? `<details><summary>문장 ${rest.length}개 더 보기</summary>${rest.map(line).join('')}</details>` : ''}</div>
-  <p class="mapnote">AI는 판단 규칙으로 문장만 썼어요. 숫자는 계산 결과와 대조해 통과한 것만 보여요${dot('', `모델 ${AI.모델 || ''} · 막힌 문장 ${AI.막힌문장수 ?? 0}개 · 규칙: .claude/skills/출점-판단-규칙/SKILL.md`)}</p>`;
+  <p class="mapnote">AI는 판단 규칙으로 문장만 썼어요. 숫자는 계산 결과와 대조해 통과한 것만 보여요${dot('', `검증에서 빠진 문장 ${AI.막힌문장수 ?? 0}개`)}</p>`;
 }
 function p6() {
   const s = D.요약, c = D.조합.기본 || D.조합.확인시, v = D.생존.기본, todo = todoItems(), g = D.진단;
