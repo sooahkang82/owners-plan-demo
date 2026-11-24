@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Owner’s Plan · 사장님 자금 설계 (데모)</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --p:#6246E5; --p-ink:#4B31C9; --p-soft:#F0EDFF; --p-line:#D9D2FF;
+  --ink:#16171D; --ink2:#4A4E5A; --ink3:#8B90A0; --line:#E9EAEF; --bg:#F6F6F9; --card:#fff;
+  --ok:#17875F; --ok-bg:#E6F4EE; --warn:#B26A00; --warn-bg:#FFF3DC; --no:#C2412F; --no-bg:#FCE9E6; --chk:#566078; --chk-bg:#EEF0F5;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Wanted Sans Variable","Wanted Sans",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.5;letter-spacing:-.012em;word-break:keep-all;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--p);outline-offset:2px;border-radius:6px}
+
+/* 상단 */
+.top{position:sticky;top:0;z-index:500;background:rgba(246,246,249,.9);backdrop-filter:blur(12px) saturate(1.3);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.03em;white-space:nowrap}
+.logo .x{color:var(--ink3);font-weight:500}
+.logo .wm{font-weight:800;letter-spacing:-.035em}
+.logo .f{color:var(--ink2);font-weight:700}
+.logo svg{width:26px;height:26px;flex:none}
+.sp{flex:1}
+.seg{display:inline-flex;background:#E9E9F0;border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer;transition:all .2s}
+.seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(20,20,40,.08)}
+.demo{font-size:11px;font-weight:600;color:var(--ink3);white-space:nowrap}
+
+/* 진행 표시 */
+.steps{max-width:1180px;margin:0 auto;padding:0 28px 12px;display:flex;gap:6px}
+.steps button{flex:1;min-width:0;border:0;background:none;padding:8px 0 0;cursor:pointer;text-align:left;border-top:3px solid #DDDEE6;transition:border-color .3s,color .3s;color:var(--ink3);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steps button b{font-weight:700;margin-right:4px}
+.steps button.done{border-color:var(--p-line);color:var(--ink2)}
+.steps button.on{border-color:var(--p);color:var(--p)}
+
+main{overflow-x:clip;max-width:1180px;margin:0 auto;padding:36px 28px 130px;min-height:70vh}
+.page{animation:in .38s cubic-bezier(.2,.7,.2,1) both}
+.page.back{animation-name:inb}
+@keyframes in{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes inb{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.kicker{font-size:13px;font-weight:700;color:var(--p)}
+h1{margin:6px 0 0;font-size:34px;line-height:1.25;font-weight:800;letter-spacing:-.04em}
+.lead{color:var(--ink2);font-size:16px;margin-top:8px}
+.cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:40px;margin-top:32px;align-items:start}
+.hero{font-size:76px;font-weight:800;letter-spacing:-.05em;line-height:1}
+.hero small{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-left:4px}
+.one{font-size:15px;color:var(--ink2);margin-top:10px}
+.muted{color:var(--ink3)}
+.rv{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;border-radius:99px;padding:4px 11px;white-space:nowrap}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st.okl{background:#EFF8F3;color:#3E8F70}.st.warnl{background:#FFF1E2;color:#B5651D}.st.ok{background:var(--ok-bg);color:var(--ok)}.st.warn{background:var(--warn-bg);color:var(--warn)}.st.no{background:var(--no-bg);color:var(--no)}.st.chk{background:var(--chk-bg);color:var(--chk)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;border:0;padding:0;margin-left:6px;vertical-align:middle;cursor:pointer;background:#B9BDCB;position:relative;top:-1px}
+.dot.est{background:#3B63D9}.dot.asm{background:var(--p)}.dot.apx{background:#1F8CA0}.dot.chk{background:#D48A0C}
+.dot::after{content:"";position:absolute;inset:-8px}
+#pop{position:fixed;z-index:900;max-width:320px;background:#1E1F27;color:#fff;font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:10px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .16s,transform .16s}
+#pop.on{opacity:1;transform:none}
+#pop b{display:block;font-size:11px;font-weight:700;letter-spacing:.02em;opacity:.7;margin-bottom:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:0}
+.chip .l{font-size:12px;color:var(--ink3)}
+.chip .v{font-size:18px;font-weight:700;letter-spacing:-.03em}
+.alert{display:flex;gap:12px;align-items:flex-start;background:var(--no-bg);color:#8A2A1D;border-radius:16px;padding:16px 18px;margin-top:24px}
+.alert.w{background:var(--warn-bg);color:#7A4A00}
+.alert b{display:block;font-size:15px}
+.alert span{font-size:13.5px}
+.alert i{flex:none;width:22px;height:22px;border-radius:50%;background:currentColor;position:relative;margin-top:1px}
+.alert i::after{content:"!";position:absolute;inset:0;color:#fff;font-style:normal;font-weight:800;font-size:14px;text-align:center;line-height:22px}
+details{margin-top:18px}
+summary{cursor:pointer;list-style:none;font-size:13px;font-weight:600;color:var(--ink3);display:inline-flex;align-items:center;gap:6px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);transition:transform .2s;margin-top:-3px}
+details[open] summary::after{transform:rotate(-135deg);margin-top:2px}
+.dl{margin-top:10px;font-size:13px;color:var(--ink2)}
+.dl div{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-top:1px solid var(--line)}
+.dl div span:last-child{font-weight:600;color:var(--ink);text-align:right}
+.srcs{margin:8px 0 0;padding-left:16px;font-size:12px;color:var(--ink3)}
+
+/* 1 시작 */
+.chat{max-width:760px;margin-top:28px}
+.q{font-size:20px;font-weight:700;letter-spacing:-.03em;margin-top:30px}
+.opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:14px 18px;cursor:pointer;text-align:left;transition:all .2s;min-width:150px}
+.opt:hover{border-color:var(--p-line);transform:translateY(-1px)}
+.opt b{display:block;font-size:16px;font-weight:700}
+.opt small{color:var(--ink3);font-size:12.5px}
+.opt[aria-pressed=true]{border-color:var(--p);background:var(--p-soft)}
+.opt[aria-pressed=true] b{color:var(--p-ink)}
+.ans{display:inline-flex;align-items:baseline;gap:8px;background:var(--p);color:#fff;border-radius:18px 18px 4px 18px;padding:12px 18px;font-size:18px;font-weight:700;margin-top:12px}
+.ans small{font-weight:500;opacity:.8;font-size:13px}
+.sl{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);opacity:.55}
+.sl h3{margin:0;font-size:14px;font-weight:700}
+.sl .g{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:12px}
+.sl label{font-size:12px;color:var(--ink2);display:block}
+.sl input{width:100%;accent-color:var(--p)}
+
+/* 2 상권 */
+#map{height:440px;border-radius:20px;overflow:hidden;background:#E7E8EE}
+.leaflet-container{background:#F2F3F5}
+.gray-tiles{filter:grayscale(1) brightness(1.1) contrast(.82) opacity(.85)}
+.leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 10px 28px -10px rgba(20,20,40,.35)}
+.leaflet-popup-content{margin:12px 14px;font-size:13px;line-height:1.45}
+.mp b{font-size:14px}
+.mpg{display:grid;grid-template-columns:auto auto;gap:3px 14px;margin-top:8px}
+.mpg span{color:var(--ink3)}.mpg b{text-align:right;font-size:13px}
+.mpn{margin-top:6px;font-size:11.5px;color:var(--ink3)}
+.lpin{width:22px;height:22px;background:#6246E5;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:2px;box-shadow:0 3px 8px rgba(20,20,40,.35)}
+.lpin.s{display:inline-block;width:9px;height:9px;border-width:1.5px;margin:0 2px 0 6px;box-shadow:none}
+.mlg{background:rgba(255,255,255,.93);border-radius:10px;padding:7px 10px;font-size:11px;line-height:1.3;color:var(--ink2);box-shadow:0 2px 8px rgba(20,20,40,.14);max-width:230px}
+.mlg div{display:flex;align-items:center;gap:5px;margin:2px 0;flex-wrap:wrap}
+.mlg .grad{display:inline-block;width:46px;height:8px;border-radius:4px;background:linear-gradient(90deg,#5FA08A,#D8B865,#C86F5E)}
+.mlg .c1,.mlg .c2{display:inline-block;border-radius:50%;background:#C9CCD6}
+.mlg .c1{width:7px;height:7px}.mlg .c2{width:14px;height:14px}
+.mlg .ring{display:inline-block;width:11px;height:11px;border-radius:50%;border:2.5px solid #6246E5}
+.mlg .ring.d{border:1.5px dashed #16171D;margin-left:6px}
+.leaflet-control-attribution{font-size:10px}
+.leaflet-container{font:inherit}
+.pin{border-radius:50%;box-sizing:border-box;box-shadow:0 2px 6px rgba(20,20,40,.25);transition:transform .2s}
+.pin:hover{transform:scale(1.2)}
+.lp{width:10px;height:10px;background:#fff;border:2px solid var(--p);border-radius:3px}
+.mapnote{font-size:12px;color:var(--ink3);margin-top:8px}
+.alts{display:grid;gap:8px;margin-top:12px}
+.alt{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;transition:all .2s}
+.alt:hover,.alt[aria-pressed=true]{border-color:var(--p)}
+.alt b{font-size:15px}.alt small{display:block;color:var(--ink3);font-size:12px}
+.alt .n{font-weight:700;font-size:15px}
+
+/* 3 매물·자금 */
+.lst{display:grid;gap:10px}
+.li{display:grid;grid-template-columns:1fr auto;gap:4px 12px;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:14px 16px;cursor:pointer;text-align:left;transition:all .2s}
+.li[aria-pressed=true]{border-color:var(--p);background:var(--p-soft)}
+.li b{font-size:15.5px}.li small{color:var(--ink3);font-size:12.5px;grid-column:1/-1}
+.stack{display:flex;flex-direction:column-reverse;gap:4px;height:300px;width:150px;flex:none}
+.blk{border-radius:10px;background:var(--p);min-height:6px;flex-grow:0;transform-origin:bottom;animation:drop .5s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) scaleY(.6)}to{opacity:1;transform:none}}
+.blk.c1{background:#6246E5}.blk.c2{background:#8A74F0}.blk.c3{background:#B3A5F6}.blk.c4{background:#D9D2FF}
+.fund{display:flex;gap:28px;align-items:flex-end;margin-top:8px}
+.lg{flex:1;min-width:0}
+.lg div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px}
+.lg div:first-child{border-top:0}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}
+.lg b{font-weight:700}
+
+/* 4 대출 */
+.tabs{display:inline-flex;gap:22px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;padding:10px 0;font-size:16px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .2s}
+.tabs button[aria-selected=true]{color:var(--p);border-color:var(--p);font-weight:700}
+.puz{display:flex;gap:4px;height:74px;margin-top:18px;background:repeating-linear-gradient(135deg,#E6E7EE 0 8px,#F1F1F6 8px 16px);border-radius:14px;overflow:hidden}
+.pc{background:var(--p);color:#fff;padding:10px 12px;font-size:12.5px;font-weight:600;overflow:hidden;white-space:nowrap;animation:grow .7s cubic-bezier(.2,.8,.2,1) both;transform-origin:left;border-radius:4px}
+.pc:first-child{border-radius:14px 4px 4px 14px}
+.pc b{display:block;font-size:17px;font-weight:800}
+.pc.k2{background:#8A74F0}.pc.k3{background:#A99AF4}
+@keyframes grow{from{transform:scaleX(0);opacity:.3}to{transform:none;opacity:1}}
+.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cmp div{padding:14px 0}
+.cmp div+div{border-left:1px solid var(--line);padding-left:18px}
+.cmp .l{font-size:12.5px;color:var(--ink3)}.cmp .v{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.cmp.c4{grid-template-columns:repeat(4,1fr)}.cmp .d{font-size:12px;font-weight:700}.up{color:var(--no)}.dn{color:var(--ok)}
+.ck{list-style:none;margin:8px 0 0;padding:0}
+.ck li{padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.ck li:first-child{border-top:0}
+.ck label{display:flex;gap:10px;cursor:pointer;align-items:flex-start}
+.ck input{accent-color:var(--p);width:17px;height:17px;margin-top:2px;flex:none}
+.ck small{display:block;color:var(--ink3);font-size:12px}
+.pr{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.pr small{display:block;color:var(--ink3);font-size:12px}
+.sumrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* 5 생존 */
+.gauge{position:relative;width:240px;height:240px;flex:none}
+.gauge svg{transform:rotate(-90deg)}
+.gauge circle{fill:none;stroke-width:16;stroke-linecap:round}
+.gauge .bg{stroke:#E5E6ED}.gauge .fg{stroke:var(--p);transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)}
+.gauge .c{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.gauge .c b{font-size:52px;font-weight:800;letter-spacing:-.05em;line-height:1}
+.gauge .c>span{font-size:12.5px;color:var(--ink3);margin-top:4px}
+.chartbox{position:relative}
+.chartbox svg{width:100%;height:auto;display:block;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:#1E1F27;color:#fff;font-size:12px;padding:8px 10px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity .12s;transform:translate(-50%,-110%)}
+.tip.on{opacity:1}
+.tip b{display:block;font-size:11px;opacity:.7}
+.play{border:0;background:var(--ink);color:#fff;border-radius:99px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink3);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:16px;border-top:3px solid var(--p);vertical-align:middle;margin-right:6px}
+.legend i.d{border-top:2px dashed #A9AEBB}
+
+/* 6 요약 */
+.report{background:#fff;border-radius:24px;padding:36px;margin-top:28px}
+.k4{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:22px}
+.k4 div{padding:18px 0}
+.k4 div+div{border-left:1px solid var(--line);padding-left:20px}
+.k4 .l{font-size:12.5px;color:var(--ink3)}
+.k4 .v{font-size:30px;font-weight:800;letter-spacing:-.04em;margin-top:2px}
+.ai{margin-top:22px;border-left:3px solid var(--p);padding:4px 0 4px 16px}
+.ai p{margin:6px 0;font-size:15px}
+.ai em{font-style:normal;font-size:11px;font-weight:700;color:var(--p-ink);background:var(--p-soft);border-radius:5px;padding:2px 6px;margin-left:6px}
+.band{background:#ECEBFB;border-radius:22px;padding:30px 28px;margin-top:26px}
+.band.say{text-align:center;margin-top:20px}
+.form{margin-top:26px;background:#fff;border-radius:22px;padding:26px;max-width:980px}
+.fgrp{padding:14px 0;border-top:1px solid var(--line)}.fgrp:first-child{border-top:0;padding-top:0}
+.fgrp>b{font-size:15px}
+.fg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:12px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld.wide{grid-column:span 2}
+.fld>span{font-size:12.5px;font-weight:600;color:var(--ink2)}.fld i{font-style:normal;font-weight:500;color:var(--ink3);font-size:11px;margin-left:3px}
+.fld small{font-size:11.5px;color:var(--ink3)}
+.fld select,.inw{height:44px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-size:15px;color:var(--ink);padding:0 12px;min-width:0;width:100%}
+.inw{display:flex;align-items:center;gap:6px;padding-right:10px}
+.inw input{border:0;outline:0;font:inherit;font-size:15px;font-weight:600;width:100%;min-width:0;background:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.inw input::-webkit-outer-spin-button,.inw input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.inw em{font-style:normal;font-size:12.5px;color:var(--ink3);white-space:nowrap}
+.fld select:focus,.inw:focus-within{border-color:var(--p)}
+.seg2{display:flex;gap:6px}
+.seg2 button{flex:1;height:44px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer}
+.seg2 button[aria-pressed=true]{border-color:var(--p);background:var(--p-soft);color:var(--p-ink)}
+.fbtn{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
+.cta:disabled{opacity:.6}
+.live{background:#16171D;color:#fff;border-radius:12px;padding:9px 14px;font-size:12.5px;margin-bottom:18px;line-height:1.5}
+.live button{border:0;background:none;color:#C9C0FF;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.alertbtn:disabled{background:#E9E9F0;color:var(--ink3);cursor:default}
+@media (max-width:900px){.fg{grid-template-columns:1fr 1fr}.form{padding:18px}}
+.alertbtn{border:0;background:var(--p);color:#fff;border-radius:99px;padding:12px 22px;font-size:14.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.alertbtn[aria-pressed=true]{background:#fff;color:var(--p-ink);box-shadow:inset 0 0 0 1.5px var(--p-line)}
+.say .s1{font-size:17px;color:var(--ink2)}
+.say .s2{font-size:46px;font-weight:800;letter-spacing:-.045em;color:var(--p);line-height:1.2;margin-top:6px}
+.say .s3{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-top:2px}
+.say .s4{font-size:13.5px;color:var(--ink2);margin-top:12px}
+.flow{display:flex;align-items:flex-start;justify-content:center;gap:10px;max-width:860px}
+.fs{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.fs i{width:54px;height:54px;border-radius:16px;background:#fff;color:var(--p);display:grid;place-content:center;box-shadow:0 6px 16px -10px rgba(98,70,229,.6)}
+.fs i svg{width:28px;height:28px}
+.fs b{font-size:14.5px;letter-spacing:-.02em}
+.fs span{font-size:12.5px;color:var(--ink2);display:block}
+.flow em{flex:none;width:44px;height:2px;border-radius:2px;background:#C9C4F4;margin-top:27px}
+@media (max-width:900px){.flow{flex-direction:column;align-items:stretch;gap:14px}.flow em{display:none}.fs{flex-direction:row;text-align:left;gap:12px}.fs b{display:block}.say .s2{font-size:34px}.band{padding:22px 18px}}
+.cta{border:0;background:var(--p);color:#fff;border-radius:99px;padding:17px 34px;font-size:17px;font-weight:700;cursor:default;box-shadow:0 14px 30px -14px rgba(98,70,229,.9);margin-top:26px}
+
+/* ---------- AI에게 물어보기 ---------- */
+.qa-card{margin-top:26px;border:1px solid var(--p-line);border-radius:18px;padding:22px;background:#fff}
+.qa-ex{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.qa-ex button{border:1px solid var(--p-line);background:var(--p-soft);color:var(--p-ink);border-radius:99px;padding:9px 14px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.qa-ex button:hover{background:#E5DFFF}
+.qa-log{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.qb{max-width:86%;border-radius:18px;padding:12px 16px;font-size:14.5px;line-height:1.55}
+.qb.me{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:6px;font-weight:600}
+.qb.ai{align-self:flex-start;background:#F3F2FA;color:var(--ink);border-bottom-left-radius:6px}
+.qb.ai p{margin:0 0 6px}.qb.ai p:last-of-type{margin-bottom:0}
+.qb.ai .wait{color:var(--ink3)}
+.qb.ai .law{display:block;font-size:12px;color:var(--ink3);margin-top:8px}
+.qb.ai .lnk{display:inline-block;margin-top:10px;border:0;background:none;padding:0;color:var(--p-ink);font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit}
+.qa-in{display:flex;gap:8px;margin-top:16px}
+.qa-in input{flex:1;min-width:0;border:1px solid var(--line);border-radius:99px;padding:12px 18px;font-size:14.5px;font-family:inherit;outline:none}
+.qa-in input:focus{border-color:var(--p)}
+/* ---------- 심사 참고 화면 ---------- */
+.vd{display:flex;gap:20px;align-items:center;background:#ECEBFB;border-radius:22px;padding:24px 26px;margin-top:22px}
+.vd .op{flex:none;font-size:22px;font-weight:800;letter-spacing:-.03em;border-radius:16px;padding:14px 22px;background:#fff;text-align:center;min-width:132px}
+.vd .op small{display:block;font-size:11.5px;font-weight:700;color:var(--ink3);letter-spacing:0;margin-bottom:2px}
+.vd .op.ok{color:var(--ok)}.vd .op.warn{color:var(--warn)}.vd .op.no{color:var(--no)}.vd .op.chk{color:var(--chk)}
+.vd .why{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.45}
+.vd .why small{display:block;font-size:12px;font-weight:600;color:var(--ink3);margin-top:6px;letter-spacing:0}
+.human{display:flex;gap:10px;align-items:center;background:var(--warn-bg);color:#7A4A00;border-radius:14px;padding:12px 16px;margin-top:10px;font-size:14.5px;font-weight:700}
+.human i{flex:none;width:20px;height:20px;border-radius:50%;background:currentColor;position:relative}
+.human i::after{content:"!";position:absolute;inset:0;color:#fff;font-style:normal;font-weight:800;font-size:13px;text-align:center;line-height:20px}
+.human span{font-weight:500;font-size:12.5px}
+.k5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px}
+.k5>div{border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;background:#fff;min-width:0}
+.k5 .l{font-size:12.5px;color:var(--ink3);font-weight:600}
+.k5 .v{font-size:25px;font-weight:800;letter-spacing:-.04em;margin-top:4px;white-space:nowrap}
+.k5 .d{font-size:12px;color:var(--ink3);margin-top:4px;line-height:1.4}
+.k5 .d.bad{color:var(--no);font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.chips>b{font-size:13.5px;margin-right:4px}
+.pt{margin:10px 0 0;padding:0;list-style:none}
+.pt li{padding:12px 0;border-top:1px solid var(--line);font-size:14.5px;line-height:1.5}
+.pt li:first-child{border-top:0}
+.pt li b{font-weight:700}
+.pt details{margin-top:4px}.pt details p{margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.rn{font-size:11px;font-weight:600;color:var(--ink3);background:var(--chk-bg);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.sh{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:800}
+.fold{border-top:1px solid var(--line);margin-top:26px}
+.fold details{margin:0;padding:14px 0;border-bottom:1px solid var(--line)}
+.fold summary{font-size:14px;color:var(--ink);display:flex;justify-content:space-between}
+.opt-card{margin-top:26px;border:1px solid var(--line);border-radius:18px;padding:22px;background:#FBFBFD}
+.otab{margin-top:14px;font-size:13.5px}
+.oh,.or{display:grid;grid-template-columns:minmax(0,2.2fr) repeat(5,minmax(0,1fr));gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
+.oh{border-top:0;font-size:12px;color:var(--ink3);padding-top:0}
+.oh span:not(:first-child),.or>span:not(:first-child){text-align:right;font-weight:700}
+.or small{display:block;color:var(--ink3);font-size:12px;font-weight:400}
+.or.pick{background:var(--p-soft);border-radius:12px;border-top-color:transparent;padding:12px;margin:0 -12px}
+.or.na{grid-template-columns:minmax(0,2.2fr) minmax(0,5fr)}
+.or.na .x{color:var(--ink3);font-weight:500!important}
+@media (max-width:900px){.oh{display:none}.or{grid-template-columns:1fr 1fr}.or>span:first-child{grid-column:1/-1}}
+/* 하단 이동 */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:400;background:linear-gradient(to top,var(--bg) 65%,rgba(246,246,249,0));padding:20px 28px 22px}
+.nav div{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:12px}
+.nav button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 22px;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s}
+.nav button.nx{background:var(--ink);border-color:var(--ink);color:#fff}
+.nav button:disabled{opacity:.3;cursor:default}
+
+@media (max-width:900px){
+  .top-in{padding:12px 16px;gap:10px;flex-wrap:wrap}.steps{padding:0 16px 10px}.steps button{font-size:0}.steps button b{font-size:12px}
+  main{padding:24px 16px 120px}h1{font-size:26px}.hero{font-size:54px}
+  .cols{grid-template-columns:1fr;gap:26px}.k4,.cmp,.cmp.c4{grid-template-columns:1fr 1fr}.k5{grid-template-columns:1fr 1fr}.vd{flex-direction:column;align-items:flex-start}.cmp.c4>div:nth-child(3){border-left:0;padding-left:0}.k4 div:nth-child(3){border-left:0;padding-left:0}
+  .sl .g{grid-template-columns:1fr 1fr}.fund{flex-direction:column;align-items:stretch}.stack{width:100%;height:200px}
+  #map{height:320px}.report{padding:22px}.gauge{margin:0 auto}.demo{display:none}.nav{padding:16px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="logo" aria-label="finda × Owner’s Plan">
+      <span class="f">finda</span><span class="x">×</span>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="12" cy="33" r="9" fill="#6246E5"/><path d="M30 9 L50 17 L50 47 L30 55 Z" fill="#6246E5" stroke="#6246E5" stroke-width="6" stroke-linejoin="round"/></svg>
+      <span class="wm">Owner’s Plan</span>
+    </div>
+    <div class="sp"></div>
+    <span class="demo">과제 데모 · 가상 데이터</span>
+    <div class="seg" role="group" aria-label="화면 전환"><button data-view="owner" aria-pressed="true">사장님 화면</button><button data-view="staff" aria-pressed="false">심사 참고 화면</button></div>
+  </div>
+  <nav class="steps" id="steps" aria-label="진행 단계"></nav>
+</header>
+<main id="app"><p class="muted">불러오는 중이에요…</p></main>
+<div class="nav" id="nav"><div><button id="pv">이전</button><button id="nx" class="nx">다음</button></div></div>
+<div id="pop" role="tooltip"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STEPS = ['시작', '상권 진단', '매물·필요 자금', '대출 조합', '생존 확률', '결과 요약'];
+// 직접 입력: 로컬 서버(server.py)가 있을 때만 쓴다. 입력값은 이 변수에만 있고 저장하지 않는다(새로고침하면 사라짐)
+let API = false, OPTS = null, BUSY = false, ERR = null, AIWAIT = false, AIERR = null, calcSeq = 0;
+const FORM = {업종: '', 관심상권: '', 출점유형: '2호점 출점', 가진자금: '', 희망대출: '', 대표나이: '', 직원수: '', 연체: '없음', 기존대출잔액: '', 기존대출금리: '', 월매출: '', 월비용: '', 인테리어견적: '', 신용점수: '', 업력개월: ''};
+const ALERTS = new Set();   // '매물 알림 받기'를 누른 사장님 (데모: 화면 상태로만 기억)
+let IDX = [], D = null, AI = null, ADV = null, step = 1, dir = 1, view = 'owner', tab = '기본', pick = 0, selMk = null, map = null;
+
+function won(v) {
+  if (v == null) return '확인 필요';
+  const r = Math.round(v), a = Math.abs(r), s = r < 0 ? '-' : '';
+  if (a >= 10000) { const e = Math.floor(a / 10000), m = a % 10000; return `${s}${e}억${m ? ' ' + m.toLocaleString('ko-KR') + '만' : ''} 원`; }
+  return `${s}${a.toLocaleString('ko-KR')}만 원`;
+}
+const pct = (v, d = 1) => (v * 100).toFixed(d) + '%';
+const stc = s => ({'가능성 높음':'okl','어려울 가능성 높음':'warnl','가능':'ok','양호':'ok','주의':'warn','확인 필요':'chk','판정 보류':'chk','불가':'no','예산 안':'ok','예산 초과':'no'}[s] || 'chk');
+const st = s => `<span class="st ${stc(s)}">${esc(s)}</span>`;
+function dot(mark, src) {            // 숫자 옆 작은 점: 누르면 표시와 출처
+  const m = mark || '데이터';
+  const c = m.includes('추정') ? 'est' : m.includes('가정') ? 'asm' : m.includes('근사') ? 'apx' : m.includes('확인') ? 'chk' : '';
+  return `<button class="dot ${c}" data-tip="${esc(m)}|${esc(src || '')}" aria-label="${esc(m)} · 출처 보기"></button>`;
+}
+const cnt = (v, f, extra = '') => `<span data-n="${v}" data-f="${f}">${f === 'won' ? won(0) : f === 'pct' ? '0.0%' : '0'}</span>${extra}`;
+function countUp(root) {
+  $$('[data-n]', root).forEach(el => {
+    const to = +el.dataset.n, f = el.dataset.f, t0 = performance.now(), dur = 800;
+    const fmt = v => f === 'won' ? won(v) : f === 'pct' ? pct(v) : f === 'pct0' ? pct(v, 0) : Math.round(v).toLocaleString('ko-KR');
+    const tick = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(to * e); if (k < 1) requestAnimationFrame(tick); else el.textContent = fmt(to); };
+    requestAnimationFrame(tick);
+  });
+}
+function reveal(root) {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: 0, rootMargin: '0px 0px -30px 0px'});
+  $$('.rv', root).forEach((el, i) => { el.style.transitionDelay = (i * 70) + 'ms'; io.observe(el); });
+}
+const combo = () => (tab === '확인시' && D.조합.확인시) ? D.조합.확인시 : (D.조합.기본 || D.조합.확인시);
+const simv = () => (tab === '확인시' && D.생존.확인시) ? D.생존.확인시 : D.생존.기본;
+const listing = () => D.매물 && D.매물.선택.length ? D.매물.선택[Math.min(pick, D.매물.선택.length - 1)] : null;
+const fundsOf = () => { const l = listing(); return (l && l.자금) || D.자금; };
+const modelReady = v => v && (v.모델 === 'v2' || v.모델 === 'v3');
+const reviewBox = () => !D.재검토 ? '' : `<div class="alert rv"><i></i><div><b>출점을 다시 살펴보길 권해요</b><span>${[D.재검토.여유현금 ? `월 여유 현금 ${won(D.요약.월여유현금.값)}` : '', D.재검토.비율 ? `희망자금이 필요 자금의 ${pct(D.재검토.비율값, 0)}` : '', `연체 ${esc(D.요약.연체)}`].filter(Boolean).join(' · ')}</span></div></div>`;
+
+/* ---------- 1 시작 ---------- */
+// 직접 그린 선 아이콘 (다른 서비스의 그림을 가져오지 않음)
+const ICON = {
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg>',
+  calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h3.5"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1.5 3.5h-3z"/><path d="M10.5 7.5C7 9.5 5 12.5 5 16a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4c0-3.5-2-6.5-5.5-8.5"/><path d="M9.5 13l1 3.5 1.5-3 1.5 3 1-3.5"/></svg>',
+};
+function fld(k, label, o = {}) {
+  const v = esc(FORM[k]);
+  const input = o.options
+    ? `<select data-f="${k}">${o.blank ? `<option value="">${o.blank}</option>` : ''}${o.options.map(x => `<option value="${esc(x.v)}" ${String(FORM[k]) === String(x.v) ? 'selected' : ''}>${esc(x.t)}</option>`).join('')}</select>`
+    : `<span class="inw"><input data-f="${k}" type="${o.type || 'number'}" inputmode="${o.type === 'text' ? 'text' : 'decimal'}" min="0" value="${v}" placeholder="${esc(o.ph || '')}">${o.unit ? `<em>${o.unit}</em>` : ''}</span>`;
+  return `<label class="fld ${o.wide ? 'wide' : ''}"><span>${label}${o.opt ? ' <i>선택</i>' : ''}</span>${input}${o.help ? `<small>${o.help}</small>` : ''}</label>`;
+}
+function p1() {
+  const s = D.요약, has = FORM.출점유형 !== '예비창업';
+  const sectors = OPTS ? OPTS.업종.map(x => ({v: x.이름, t: x.이름 + (x.구분 === '근사' ? ' (비슷한 업종 기준)' : '')})) : [];
+  const areas = OPTS ? OPTS.상권.map(x => ({v: x.이름, t: `${x.이름} · ${x.시군구}`})) : [];
+  return `<div class="kicker">1 / 6 · 시작</div><h1>사장님 정보를<br>알려 주세요</h1>
+  <div class="band flow rv" aria-label="이용 순서">
+    <div class="fs"><i>${ICON.pin}</i><b>상권·업종·자금 입력</b><span>사장님이 넣는 것</span></div><em></em>
+    <div class="fs"><i>${ICON.calc}</i><b>필요 자금·대출 조합·생존 확률</b><span>코드가 계산하고 AI가 설명</span></div><em></em>
+    <div class="fs"><i>${ICON.bag}</i><b>핀다에서 대출 신청</b><span>결과를 보고 사장님이 결정</span></div>
+  </div>
+  ${API ? `<div class="form rv">
+    <div class="fgrp"><b>어떤 가게를 여시나요?</b>
+      <div class="fg">${fld('업종', '업종', {options: sectors, blank: '업종 고르기'})}${fld('관심상권', '관심 상권', {options: areas, blank: '상권 고르기'})}
+        <div class="fld wide"><span>출점 유형</span><div class="seg2">${OPTS.출점유형.map(x => `<button type="button" data-kind="${x}" aria-pressed="${FORM.출점유형 === x}">${x === '사업장 이전' ? '이전' : x === '2호점 출점' ? '2호점' : x}</button>`).join('')}</div></div></div></div>
+    <div class="fgrp"><b>자금</b>
+      <div class="fg">${fld('가진자금', '가진 자금', {unit: '만 원', ph: '예: 2000'})}${fld('희망대출', '희망 대출 금액', {unit: '만 원', ph: '예: 5000'})}${fld('기존대출잔액', '기존 대출 잔액', {unit: '만 원', ph: '없으면 0'})}${fld('기존대출금리', '기존 대출 금리', {unit: '%', ph: '예: 5.5', help: '비우면 한국은행 평균(가정)'})}
+        ${fld('인테리어견적', '인테리어·장비 견적', {unit: '만 원', opt: true, help: '넣으면 가정 대신 이 값을 써요'})}</div></div>
+    <div class="fgrp"><b>사장님</b>
+      <div class="fg">${fld('대표나이', '대표 나이', {unit: '세', ph: '예: 38'})}${fld('직원수', '직원 수', {unit: '명', ph: '예: 2'})}${fld('연체', '최근 1년 연체', {options: OPTS.연체.map(x => ({v: x, t: x}))})}${fld('신용점수', '신용점수', {unit: '점', opt: true, help: '비우면 750점(가정)'})}</div></div>
+    ${has ? `<div class="fgrp"><b>기존 가게</b>
+      <div class="fg">${fld('월매출', '월매출', {unit: '만 원', ph: '예: 2500'})}${fld('월비용', '월비용', {unit: '만 원', ph: '예: 1900', help: '재료비·인건비·임차료 등 전부'})}${fld('업력개월', '영업한 기간', {unit: '개월', opt: true, help: '비우면 36개월(가정)'})}</div></div>` : ''}
+    ${ERR ? `<div class="alert"><i></i><div><b>${esc(ERR)}</b></div></div>` : ''}
+    <div class="fbtn"><button class="cta" type="button" data-calc="1" ${BUSY ? 'disabled' : ''} style="cursor:pointer;margin-top:0">${BUSY ? '계산하는 중…' : '이 정보로 계산하기'}</button>
+      <span class="mapnote">입력값은 저장하지 않아요. 새로고침하면 사라져요 · 실서비스에서는 핀다 앱 정보로 자동 입력돼요</span></div>
+  </div>` : `<div class="alert w rv"><i></i><div><b>직접 입력은 로컬 서버로 열어야 쓸 수 있어요</b><span>finda 폴더에서 python server.py 를 실행한 뒤 http://localhost:5173 으로 열어 주세요. 지금은 예시만 볼 수 있어요</span></div></div>`}
+  <div class="chat">
+    <div class="q rv">예시 불러오기</div>
+    <div class="opts rv">${IDX.map(m => `<button class="opt" data-id="${m.id}" aria-pressed="${m.id === D.id}"><b>${esc(m.업종)}</b><small>${esc(m.관심지역 || '관심 상권 없음')} · ${esc(m.희망용도 || '')}</small></button>`).join('')}</div>
+    <div class="q rv" style="font-size:16px">지금 보고 있는 결과</div>
+    <div class="rv"><span class="ans">${esc(s.관심지역 || '관심 상권 없음')} ${esc(s.업종)} <small>${esc(s.희망용도 || '')} · 대출 ${won(s.희망자금)}</small></span></div>
+    <div class="chips rv">
+      <div class="chip"><div class="l">월 여유 현금</div><div class="v">${s.월여유현금.값 == null ? '확인 필요' : won(s.월여유현금.값)}${dot(s.월여유현금.표시, s.월여유현금.출처)}</div></div>
+      <div class="chip"><div class="l">신용점수</div><div class="v">${s.신용점수}점</div></div>
+      <div class="chip"><div class="l">업력</div><div class="v">${Math.floor(s.업력 / 12)}년 ${s.업력 % 12}개월</div></div>
+      <div class="chip"><div class="l">최근 1년 연체</div><div class="v">${esc(s.연체)}</div></div>
+      ${s.가진자금 != null ? `<div class="chip"><div class="l">가진 자금</div><div class="v">${won(s.가진자금)}</div></div>` : ''}
+    </div>
+    ${s.사업장확인 ? `<div class="alert w rv"><i></i><div><b>현재 사업장 확인이 필요해요</b><span>보증금·월세가 모두 0이에요</span></div></div>` : ''}
+  </div>`;
+}
+function liveBody(extra = {}) {      // 다시 계산을 부탁할 때 보낼 내용: 직접 입력이면 입력값, 예시면 회원 번호
+  const lv = D.실시간;
+  if (lv && lv.직접입력) return {input: FORM, ...extra};
+  const base = {member_id: (lv && lv.예시) || D.id};
+  if (lv && String(D.id).includes('상권변경') && !extra.area) base.area = D.요약.관심지역;
+  return {...base, ...extra};
+}
+async function calcLive(body, opt = {}) {
+  const seq = ++calcSeq; BUSY = true; ERR = null; render();
+  try {
+    const r = await fetch('/api/calc', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.오류 || '계산하지 못했어요');
+    if (seq !== calcSeq) return;
+    D = j; AI = null; ADV = null; AIWAIT = true; AIERR = null; tab = '기본'; selMk = null; BUSY = false;
+    pick = Math.max(0, (D.매물 ? D.매물.선택 : []).findIndex(l => l.id === D.자금매물));
+    history.replaceState(null, '', location.pathname + location.search);
+    if (opt.step) go(opt.step); else { const y = scrollY; dir = 1; render(); scrollTo({top: y}); }
+    fetchAI(D.id, seq);
+  } catch (e) { if (seq !== calcSeq) return; BUSY = false; ERR = e.message; const y = scrollY; render(); scrollTo({top: y}); }
+}
+async function fetchAI(id, seq) {     // AI 판단은 따로 받는다. 늦거나 실패해도 숫자 화면은 이미 나와 있다
+  try {
+    const r = await fetch('/api/ai', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id})});
+    const j = await r.json();
+    if (seq !== calcSeq) return;
+    AI = j.ai || null; ADV = j.adv || null;
+    AIERR = (!j.ai || !j.adv) ? ((j.오류 || []).join(' / ') || 'AI 판단을 받지 못했어요') : null;
+  } catch (e) { if (seq !== calcSeq) return; AIERR = 'AI 서버에 연결하지 못했어요'; }
+  AIWAIT = false;
+  if (view === 'staff' || step === 4 || step === 6) { const y = scrollY; dir = 1; render(); scrollTo({top: y}); }
+}
+
+/* ---------- 2 상권 ---------- */
+function mkCard(m) {
+  return `<div class="sumrow">${st(m.판정)}<b style="font-size:20px;letter-spacing:-.03em">${esc(m.상권명)}</b></div>
+  <div class="hero" style="margin-top:14px">${cnt(m.평균폐업률, 'pct')}</div>
+  <div class="one">최근 4분기 평균 폐업률${dot('', 'data/상권분석 CSV 폐업수/기초점포수의 4분기 평균')}</div>
+  <div class="chips">
+    <div class="chip"><div class="l">점포당 월 매출</div><div class="v">${esc(m.매출구간)}</div></div>
+    <div class="chip"><div class="l">평균 영업기간</div><div class="v">${m.평균영업기간}개월</div></div>
+    <div class="chip"><div class="l">거래중 매물</div><div class="v">${m.거래중}건</div></div>
+  </div>`;
+}
+function p2() {
+  const g = D.진단, mp = D.지도;
+  if (!g || !mp) return `<div class="kicker">2 / 6 · 상권 진단</div><h1>상권 진단은 건너뛰어요</h1><p class="lead">점포가 필요 없는 업종이거나 관심 상권이 없어요.</p>`;
+  const cur = mp.상권.find(x => x.상권명 === (selMk || g.상권명)) || mp.상권.find(x => x.상권명 === g.상권명);
+  const a = D.대안;
+  return `<div class="kicker">2 / 6 · 상권 진단</div><h1>${esc(g.상권명)}, ${g.판정 === '양호' ? '괜찮아 보여요' : g.판정 === '주의' ? '조심해서 봐야 해요' : '판단하기 어려워요'}</h1>
+  ${reviewBox()}
+  <div class="cols">
+    <div class="rv"><div id="map"></div><div class="mapnote">원이나 핀을 누르면 자세히 볼 수 있어요 · 좌표와 매물 위치는 근사예요${dot('근사', mp.좌표출처 + '. 매물은 정확한 위치가 없어 상권 중심 주변에 모아 표시. 원 크기: ' + (mp.점포수출처 || '') + ' · 원 색: ' + (mp.폐업률출처 || '') + ' · 지도: © OpenStreetMap contributors')}</div></div>
+    <div>
+      <div id="mk" class="rv">${mkCard(cur)}</div>
+      ${g.신호.length ? `<details class="rv"><summary>위험 신호 ${g.신호.length}개</summary><div class="dl">${g.신호.map(x => `<div><span>${esc(x)}</span><span></span></div>`).join('')}</div></details>` : ''}
+      ${a ? `<div class="rv" style="margin-top:24px"><b>이런 상권도 있어요</b> <span class="muted" style="font-size:12.5px">${esc(a.권역)} · ${esc(a.범위)}</span>${dot('', (a.기준 || '') + '의 권역 안에서 먼저 찾아요. 서울·경기·인천은 수도권 하나로 봐요')}
+        <div class="alts">${a.목록.length ? a.목록.map(x => `<button class="alt" data-mk="${esc(x.상권명)}" aria-pressed="${selMk === x.상권명}"><span><b>${esc(x.상권명)}</b><small>${esc(x.시군구)} · 매물 ${x.거래중}건</small></span><span class="n">${pct(x.평균폐업률)}</span></button>`).join('') : '<span class="muted">조건에 맞는 상권이 없어요</span>'}</div>
+        </div>` : ''}
+      ${API ? `<div class="rv" style="margin-top:14px"><button class="alertbtn" type="button" data-rearea="1" ${selMk && selMk !== g.상권명 ? '' : 'disabled'}>${selMk && selMk !== g.상권명 ? esc(selMk) + ' 기준으로 다시 계산' : '지도나 목록에서 다른 상권을 누르면 다시 계산할 수 있어요'}</button></div>` : `<div class="mapnote">로컬 서버(python server.py)로 열면 다른 상권으로 다시 계산할 수 있어요</div>`}
+      <details class="rv"><summary>판정 기준과 출처</summary><ul class="srcs"><li>${esc(g.출처)}</li><li>주의: 최근 2분기 연속 폐업 초과 또는 폐업률 상위 25% (기준 ${pct(g.상위기준)})</li><li>점포 10개 미만이면 판정 보류 (가정)</li></ul></details>
+    </div>
+  </div>`;
+}
+// 지도 타일. CARTO Positron은 2026-11-19 확인 결과 키 없이 부르면 타일에 "API KEY REQUIRED"가 찍혀서 쓰지 못함.
+// 그래서 키가 필요 없는 OpenStreetMap 기본 타일을 밝은 회색으로 바꿔 쓴다. CARTO 키를 받으면 아래 CARTO 줄로 바꾸면 된다.
+// 실서비스에서는 상용 지도(카카오맵 등)로 바꿔야 함
+const MAP_TILES = {url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', subdomains: 'abc', gray: true,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'};
+// const MAP_TILES = {url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?api_key=<키>', subdomains: 'abcd', gray: false,
+//   attribution: '&copy; OpenStreetMap contributors &copy; CARTO'};
+const MAP_COLORS = ['#5FA08A', '#D8B865', '#C86F5E'];           // 폐업률 낮음(초록) → 높음(빨강), 채도 낮게
+function mix(a, b, k) { const h = c => [1, 3, 5].map(n => parseInt(c.slice(n, n + 2), 16)); const x = h(a), y = h(b); return '#' + x.map((v, n) => Math.round(v + (y[n] - v) * k).toString(16).padStart(2, '0')).join(''); }
+function rateColor(q, lo, hi) { const k = hi > lo ? Math.max(0, Math.min(1, (q - lo) / (hi - lo))) : 0; return k < .5 ? mix(MAP_COLORS[0], MAP_COLORS[1], k * 2) : mix(MAP_COLORS[1], MAP_COLORS[2], (k - .5) * 2); }
+function areaPop(m) {
+  return `<div class="mp"><div class="sumrow">${st(m.판정)}<b>${esc(m.상권명)}</b></div><div class="mpg"><span>폐업률(분기 평균)</span><b>${pct(m.평균폐업률)}</b><span>평균 영업기간</span><b>${m.평균영업기간}개월</b><span>매출 구간</span><b>${esc(m.매출구간)}</b><span>점포 수</span><b>${m.점포수}곳</b></div></div>`;
+}
+function listPop(l, sel) {
+  const k = Array.isArray(l.권리금) ? (l.권리금[1] ? `${won(l.권리금[0]).replace('만 원', '')}~${won(l.권리금[1])}` : '없음') : (l.권리금 == null ? '확인 필요' : won(l.권리금));
+  return `<div class="mp"><div class="sumrow"><span class="st ${sel ? 'ok' : 'chk'}">${sel ? '선택한 매물' : '다른 매물'}</span><b>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</b></div><div class="mpg"><span>보증금</span><b>${won(l.보증금)}</b><span>월세+관리비</span><b>${won(l.월세 + l.관리비)}</b><span>권리금${l.권리금표시 ? ' (' + esc(l.권리금표시) + ')' : ''}</span><b>${k}</b></div><div class="mpn">위치는 근사예요 (상권 중심 주변)</div></div>`;
+}
+function drawMap() {
+  const mp = D.지도, g = D.진단; if (!mp || !g || !$('#map')) return;
+  if (map) { map.remove(); map = null; }
+  const f = mp.상권.find(x => x.상권명 === g.상권명);
+  map = L.map('map', {zoomControl: true, scrollWheelZoom: false}).setView([f.lat, f.lon], 12);
+  L.tileLayer(MAP_TILES.url, {subdomains: MAP_TILES.subdomains, maxZoom: 19, attribution: MAP_TILES.attribution, className: MAP_TILES.gray ? 'gray-tiles' : ''}).addTo(map);
+  map.attributionControl.setPrefix(false);
+  const qs = mp.상권.map(m => m.평균폐업률), lo = Math.min(...qs), hi = Math.max(...qs);
+  const ns = mp.상권.map(m => m.점포수), nlo = Math.min(...ns), nhi = Math.max(...ns);
+  const rad = n => 7 + 15 * Math.sqrt(nhi > nlo ? (n - nlo) / (nhi - nlo) : 0);
+  const order = {'기타': 0, '대안': 1, '관심': 2};
+  mp.상권.slice().sort((a, b) => order[a.역할] - order[b.역할]).forEach(m => {
+    const focus = m.역할 === '관심', alt = m.역할 === '대안';
+    L.circleMarker([m.lat, m.lon], {radius: rad(m.점포수), fillColor: rateColor(m.평균폐업률, lo, hi), fillOpacity: focus || alt ? .88 : .62,
+      color: focus ? '#6246E5' : alt ? '#16171D' : '#fff', weight: focus ? 4 : alt ? 2 : 1.2, dashArray: alt ? '4 4' : null})
+      .addTo(map).bindPopup(areaPop(m), {maxWidth: 240, closeButton: false}).bindTooltip(m.상권명, {direction: 'top', offset: [0, -4]})
+      .on('click', () => pickMk(m.상권명, true));
+  });
+  // 매물: 선택한 매물은 핀, 같은 상권의 다른 매물은 작은 점 (정확한 위치가 없어 상권 중심 주변에 근사 배치)
+  const ls = D.매물 ? D.매물.선택 : [], cur = Math.min(pick, ls.length - 1);
+  ls.forEach((l, n) => {
+    const ang = n * 2.1 + .6, r = 0.0036, at = [f.lat + Math.sin(ang) * r, f.lon + Math.cos(ang) * r * 1.25], sel = n === cur;
+    (sel ? L.marker(at, {icon: L.divIcon({className: '', iconSize: [26, 34], iconAnchor: [13, 32], popupAnchor: [0, -30], html: '<div class="lpin"></div>'}), zIndexOffset: 900})
+         : L.circleMarker(at, {radius: 4.5, fillColor: '#fff', fillOpacity: 1, color: '#6246E5', weight: 2}))
+      .addTo(map).bindPopup(listPop(l, sel), {maxWidth: 240, closeButton: false});
+  });
+  // 범례
+  const lg = L.control({position: 'bottomleft'});
+  lg.onAdd = () => { const d = L.DomUtil.create('div', 'mlg');
+    d.innerHTML = `<div><i class="grad"></i><span>폐업률 ${pct(lo)} ~ ${pct(hi)}</span></div><div><i class="c1"></i><i class="c2"></i><span>원 크기 = ${esc(mp.업종)} 점포 수 (${nlo}~${nhi}곳)</span></div><div><i class="ring"></i><span>관심</span><i class="ring d"></i><span>대안</span><i class="lpin s"></i><span>선택한 매물</span></div>`;
+    L.DomEvent.disableClickPropagation(d); return d; };
+  lg.addTo(map);
+  if (selMk) { const m = mp.상권.find(x => x.상권명 === selMk); if (m) map.setView([m.lat, m.lon], 12); }
+}
+function pickMk(name, fromMap) {
+  selMk = name; const m = D.지도.상권.find(x => x.상권명 === name);
+  if (!fromMap) map.flyTo([m.lat, m.lon], 13, {duration: 1.1});      // 원을 직접 누르면 카드가 가려지지 않게 지도를 움직이지 않음
+  const el = $('#mk'); el.style.opacity = 0;
+  setTimeout(() => { el.innerHTML = mkCard(m); el.style.transition = 'opacity .3s'; el.style.opacity = 1; countUp(el); }, 160);
+  $$('.alt').forEach(b => b.setAttribute('aria-pressed', b.dataset.mk === name));
+  const rb = $('[data-rearea]'); if (rb) { const other = name !== D.진단.상권명; rb.disabled = !other; rb.textContent = other ? name + ' 기준으로 다시 계산' : '지도나 목록에서 다른 상권을 누르면 다시 계산할 수 있어요'; }
+}
+
+/* ---------- 3 매물·필요 자금 ---------- */
+function p3() {
+  const m = D.매물;
+  if (!m) return `<div class="kicker">3 / 6 · 매물·필요 자금</div><h1>매물 단계는 건너뛰어요</h1><p class="lead">빌릴 금액은 희망자금 ${won(D.부족자금)}으로 봤어요.</p>`;
+  if (!m.선택.length) { const alt = (D.선택지 || []).find(o => o.이름.startsWith('③') && !o.해당없음);
+    return `<div class="kicker">3 / 6 · 매물·필요 자금</div><h1>${esc(D.요약.관심지역)}에는 지금<br>거래 중인 매물이 없어요</h1>
+    ${alertBox()}
+    <div class="alert w rv"><i></i><div><b>필요 자금을 계산하지 못했어요</b><span>대출 조합은 참고용으로만 보여 드려요</span></div></div>
+    ${alt ? `<div class="rv" style="margin-top:26px"><b>대신 이런 곳은 어때요</b> <span class="st chk">대안 제안</span>
+      <div class="chips"><div class="chip"><div class="l">대안 상권</div><div class="v">${esc(alt.상권)}</div></div><div class="chip"><div class="l">총 필요 자금</div><div class="v">${won(alt.총필요자금)}</div></div><div class="chip"><div class="l">월 최대 상환</div><div class="v">${alt.월최대상환 == null ? '-' : won(alt.월최대상환)}</div></div><div class="chip"><div class="l">생존 확률</div><div class="v">${alt.생존확률 == null ? '-' : pct(alt.생존확률)}${dot('가정', '대안 상권의 첫 번째 매물로 같은 계산을 다시 돌린 값')}</div></div></div>
+      <p class="mapnote">${esc(alt.설명)} · 자세한 비교는 6단계 '선택지 비교'에서 볼 수 있어요</p></div>` : ''}`; }
+  const f = fundsOf(), keys = ['보증금', '권리금', '인테리어·장비', '초기 운영비'], tot = f['총 필요 자금'];
+  const sum = keys.reduce((a, k) => a + (f[k].값 || 0), 0) || 1;
+  return `<div class="kicker">3 / 6 · 매물·필요 자금</div><h1>가게를 여는 데<br>이만큼 들어요</h1>
+  <div class="cols">
+    <div>
+      <div class="rv"><div class="hero">${cnt(tot.값, 'won')}${dot(tot.표시, tot.출처)}</div><div class="one">매물 ${esc(listing().id)} 기준 · 권리금과 인테리어는 상한으로 계산</div></div>
+      <div class="fund rv" style="margin-top:28px">
+        <div class="stack">${keys.map((k, i) => `<div class="blk c${i + 1}" style="flex-basis:${(f[k].값 || 0) / sum * 100}%;animation-delay:${i * 160}ms" title="${k}"></div>`).join('')}</div>
+        <div class="lg">${keys.slice().reverse().map(k => { const i = keys.indexOf(k); return `<div><span><i class="blk c${i + 1}" style="animation:none"></i>${k}</span><b>${won(f[k].값)}${dot(f[k].표시, f[k].출처)}</b></div>`; }).join('')}</div>
+      </div>
+      <div class="one rv">빌릴 금액 ${won(D.부족자금)}${dot('가정', '자기자본 데이터가 없어 희망자금을 부족 자금으로 봄 (PRD 6-5)')} · 나머지 ${won(tot.값 - D.부족자금)}은 ${D.요약.가진자금 != null ? (D.요약.가진자금 >= tot.값 - D.부족자금 ? `가진 자금 ${won(D.요약.가진자금)}으로 낼 수 있어요` : `자기자본이 필요한데 가진 자금은 ${won(D.요약.가진자금)}이라 <b style="color:var(--no)">${won(tot.값 - D.부족자금 - D.요약.가진자금)} 모자라요</b>`) : '자기자본 확인'}${dot(D.요약.가진자금 != null ? '' : '확인 필요', '총 필요 자금 − 희망 대출 금액' + (D.요약.가진자금 != null ? ' 을 사장님이 입력한 가진 자금과 비교' : ''))}</div>
+    </div>
+    <div>
+      <b class="rv">매물을 골라 보세요</b> <span class="muted" style="font-size:12.5px">거래중 ${m.거래중건수}건</span>
+      <div class="lst" style="margin-top:12px">${m.선택.map((l, i) => `<button class="li rv" data-pick="${i}" aria-pressed="${i === pick}"><b>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</b>${st(l.예산)}<small>보증금 ${won(l.보증금)} · 월 ${won(l.월세 + l.관리비)} · 직전 ${esc(l.직전업종)}</small></button>`).join('')}</div>
+      ${m.미확정.length ? `<details class="rv"><summary>상권 미확정 후보 ${m.미확정.length}건</summary><div class="dl">${m.미확정.map(l => `<div><span>${esc(l.건물)} ${esc(l.층)}층 · ${l.평}평</span><span>${won(l.보증금)}</span></div>`).join('')}</div><p class="mapnote">상권명이 비어 있어 ${esc(D.요약.관심지역)} 매물로 확정하지 않았어요</p></details>` : ''}
+      <details class="rv"><summary>정렬 기준과 출처</summary><ul class="srcs"><li>${esc(m.정렬기준)} (가정)</li><li>${esc(m.출처)}</li><li>${API ? '매물을 고르면 그 매물로 전체를 다시 계산해요' : '대출 조합은 첫 번째 매물 기준으로 계산돼 있어요 (로컬 서버로 열면 고른 매물로 다시 계산돼요)'}</li></ul></details>
+    </div>
+  </div>`;
+}
+
+/* ---------- 4 대출 ---------- */
+function todoItems() {
+  const map = new Map();
+  D.상품.filter(p => p.상태 === '확인 필요').forEach(p => p.확인.forEach(c => { if (!map.has(c)) map.set(c, []); map.get(c).push(p.상품명); }));
+  const ex = [];
+  if (D.요약.사업장확인) ex.push(['현재 사업장 여부', '보증금·월세가 모두 0']);
+  if (D.총필요) ex.push([`자기자본 ${won(D.총필요 - D.부족자금)}`, '총 필요 자금 − 희망자금']);
+  ex.push(['기존 대출의 실제 금리', '지금은 한국은행 평균 (가정)']);
+  return ex.concat([...map].map(([c, ps]) => [c, ps.join(', ')]));
+}
+function p4() {
+  const A = D.조합.기본, B = D.조합.확인시, c = combo(), n = D.판정수;
+  if (!c) return `<div class="kicker">4 / 6 · 대출 조합</div><h1>조합할 상품이 없어요</h1>${reviewBox()}`;
+  const other = c === A ? B : A, d = k => other ? c[k] - other[k] : null;
+  const dl = (v, unit) => v == null || Math.abs(v) < .05 ? '' : `<div class="d ${v > 0 ? 'up' : 'dn'}">${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(0)}${unit} ${c === B ? '기본 대비' : '확인 시 대비'}</div>`;
+  const todo = todoItems();
+  return `<div class="kicker">4 / 6 · 대출 조합</div><h1>${won(c.금액)}, 이렇게 채워요</h1>
+  ${reviewBox()}${D.참고용 ? `<div class="alert w rv"><i></i><div><b>참고용(매물 확정 전)</b><span>희망자금만으로 계산했어요</span></div></div>` : ''}
+  <div style="margin-top:26px" class="rv">${B && A ? `<div class="tabs" role="tablist"><button role="tab" data-tab="기본" aria-selected="${tab === '기본'}">기본 조합</button><button role="tab" data-tab="확인시" aria-selected="${tab === '확인시'}">확인 시 조합</button></div>` : ''}
+    <div class="puz">${c.rows.map((r, i) => `<div class="pc k${i + 1}" style="flex:${r.금액} 1 0;animation-delay:${i * 180}ms"><b>${won(r.금액)}</b>${esc(r.상품명)}</div>`).join('')}${c.못채움 > 0 ? `<div style="flex:${c.못채움} 1 0;display:grid;place-content:center;font-size:12px;color:var(--ink3)">못 채움 ${won(c.못채움)}</div>` : ''}</div>
+  </div>
+  <div class="cols">
+    <div>
+      ${c.선택 && c.선택.한줄 ? `<div class="one rv" style="margin-top:0;margin-bottom:18px"><b>왜 이 조합인가요</b> ${esc(c.선택.한줄)}${dot('가정', c.선택.이유 + ' · 기준: ' + c.선택.기준)}</div>` : ''}
+      <div class="rv"><div class="hero">${cnt(c.최대월, 'won')}</div><div class="one">${c.거치있음 ? '거치가 끝난 뒤 ' : ''}가장 많이 내는 달의 상환액${dot('가정', '적용 금리는 범위 중간값, 대출 기간은 상품 최대 기간. 금리·기간 출처: data/소상공인_대출상품목록 xlsx')}</div></div>
+      <div class="cmp c4 rv">
+        <div><div class="l">${c.거치있음 ? '거치 중 월 상환액' : '첫 달 상환액'}</div><div class="v">${cnt(c.첫달, 'won')}</div>${dl(d('첫달'), '만')}</div>
+        <div><div class="l">총이자</div><div class="v">${cnt(c.총이자, 'won')}</div>${dl(d('총이자'), '만')}${c.보증료 > 0.5 ? `<div class="d muted">보증료 ${won(c.보증료)} 별도${dot('가정', '보증료 = 원금 × 보증료율 × 대출 기간. 보증료율은 상품 문구의 값(범위면 중간값). 총 비용 ' + won(c.총비용))}</div>` : ''}</div>
+        <div><div class="l">생존 확률</div><div class="v">${c.선택 && c.선택.생존확률 != null ? pct(c.선택.생존확률, 0) : '확인 필요'}</div><div class="d muted">${c.선택 && c.선택.생존확률 != null ? '이 조합으로 새 가게가 버틸 확률' : '매물이 정해져야 계산해요'}${dot('가정', '5단계 생존 확률과 같은 계산. 조합 후보마다 계산해 가장 높은 조합을 골랐어요')}</div></div>
+        <div><div class="l">안전 기준</div><div class="v">${D.안전상환 ? (c.최대월 <= D.안전상환 ? '기준 안' : '기준 초과') : '확인 필요'}</div><div class="d muted">${D.안전상환 ? '월 ' + won(D.안전상환) + ' 이하' : ''}${dot('가정', '월 상환액 ≤ 월 여유 현금의 50% (PRD 4-6)')}</div></div>
+      </div>
+      ${c.경고.map(x => `<div class="alert w rv"><i></i><div><span>${esc(x)}</span></div></div>`).join('')}
+      ${(D.조합.확인시제외 || []).length ? `<div class="rv" style="margin-top:14px"><b style="font-size:14px">확인 시 조합에서도 뺀 상품</b>${dot('', 'AI 자격 해석에서 어려울 가능성이 높다고 본 상품은 확인 시 조합에도 넣지 않았어요. 최종 자격은 금융사·보증기관이 정해요')}<div class="dl">${D.조합.확인시제외.map(x => `<div><span>${esc(x.상품명)} <span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span><br><span class="muted">${esc(x.이유)}</span></span><span></span></div>`).join('')}</div></div>` : ''}
+      ${c.최소비용 ? `<details class="rv"><summary>총 비용이 가장 적은 조합과 비교</summary>${c.선택.최소비용과같음 ? `<p class="one" style="margin:10px 0 0">지금 조합이 총 비용도 가장 적어요 (총이자 ${won(c.총이자)}${c.보증료 > 0.5 ? ' + 보증료 ' + won(c.보증료) : ''}).</p>` : `<div class="dl">
+        <div><span><b>총 비용이 가장 적은 조합</b><br><span class="muted">${c.최소비용.rows.map(r => esc(r.상품명) + ' ' + won(r.금액)).join(' + ')}</span></span><span></span></div>
+        <div><span>총 비용 (총이자 + 보증료)</span><span>${won(c.최소비용.총비용)}<br><span class="muted">지금 조합 ${won(c.총비용)}</span></span></div>
+        <div><span>가장 많이 내는 달의 상환액</span><span>${won(c.최소비용.최대월)}<br><span class="muted">지금 조합 ${won(c.최대월)}</span></span></div>
+        <div><span>생존 확률</span><span>${c.최소비용.생존확률 == null ? '확인 필요' : pct(c.최소비용.생존확률)}<br><span class="muted">${c.최소비용.생존확률 == null || c.선택.생존확률 == null ? '매물이 정해져야 계산해요' : '지금 조합 ' + pct(c.선택.생존확률) + ' · 지금 조합이 ' + ((c.선택.생존확률 - c.최소비용.생존확률) * 100).toFixed(1) + '%p 높아요'}</span></span></div>
+      </div>${(c.최소비용.경고 || []).map(x => `<div class="alert w" style="margin-top:12px"><i></i><div><span>${esc(x)}</span></div></div>`).join('')}`}<ul class="srcs"><li>${esc(c.선택.이유)}</li><li>기준: ${esc(c.선택.기준)} (가정)</li></ul></details>` : ''}
+      <details class="rv"><summary>상품별 조건</summary><div class="dl">${c.rows.map(r => `<div><span>${esc(r.상품명)} ${st(r.상태)}<br><span class="muted">${esc(r.금융사)} · ${esc(r.상환방식)} · ${r.기간}개월</span></span><span>${r.최저금리}~${r.최고금리}%<br><span class="muted">${r.첫달.toFixed(1)}만 → ${r.최대월.toFixed(1)}만</span></span></div>`).join('')}</div></details>
+    </div>
+    <div>
+      <div class="rv"><b>확인 체크리스트</b> <span class="muted" style="font-size:12.5px">${todo.length}개</span>
+        <ul class="ck">${todo.slice(0, 5).map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul>
+        ${todo.length > 5 ? `<details><summary>${todo.length - 5}개 더 보기</summary><ul class="ck">${todo.slice(5).map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>` : ''}
+      </div>
+      ${eligBlock()}
+      <details class="rv"><summary><span class="sumrow">상품 20개 판정 <span class="st ok">가능 ${n['가능'] || 0}</span><span class="st chk">확인 필요 ${n['확인 필요'] || 0}</span><span class="st no">불가 ${n['불가'] || 0}</span></span></summary>
+        <div>${D.상품.slice().sort((a, b) => ({'가능': 0, '확인 필요': 1, '불가': 2}[a.상태] - {'가능': 0, '확인 필요': 1, '불가': 2}[b.상태]) || a.최고금리 - b.최고금리).map(p => `<div class="pr"><span>${esc(p.상품명)}<small>${esc((p.상태 === '불가' ? p.사유 : p.확인.concat(p.메모)).join(' · ') || p.금융사)}</small></span><span style="text-align:right;flex:none">${st(p.상태)}<small>${p.최저금리}~${p.최고금리}%${p.상태 !== '불가' && p.한도_만원 ? ' · ' + won(p.한도_만원) : ''}</small></span></div>`).join('')}</div>
+      </details>
+    </div>
+  </div>`;
+}
+
+/* ---------- 5 생존 ---------- */
+function p5() {
+  const v = simv(), g0 = D.진단;
+  // 생존 확률(가정) 옆에 같은 상권·업종의 실제 데이터를 나란히 보여 준다
+  const dataLine = g0 && g0.연폐업률 != null ? `이 상권 ${esc(g0.업종)} 연 폐업률 <b>${pct(g0.연폐업률)}</b> · 평균영업기간 <b>${g0.평균영업기간}개월</b> <span class="st ok" style="padding:2px 8px">데이터</span>${dot('', g0.연폐업률출처 + ' · 평균영업기간은 같은 파일의 평균영업기간(개월). 모델과 데이터 중 어느 쪽이 맞다는 뜻이 아니라 나란히 보는 참고 값')}` : '';
+  if (!v) return `<div class="kicker">5 / 6 · 생존 확률</div><h1>아직 계산할 수 없어요</h1><p class="lead">매물과 필요 자금이 정해져야 계산해요.</p>${dataLine ? `<div class="one rv" style="margin-top:22px">참고 · ${dataLine}</div>` : ''}`;
+  const ok = modelReady(v), R = 104, C = 2 * Math.PI * R;
+  return `<div class="kicker">5 / 6 · 생존 확률</div><h1>이 대출로 ${v.개월}개월,<br>버틸 수 있을까요?</h1>
+  ${dataLine && ok ? `<div class="one rv" style="margin-top:14px;font-size:16px">생존 확률 <b>${pct(v.생존확률)}</b> <span class="st chk" style="padding:2px 8px">가정</span> · ${dataLine}</div>` : ''}
+  <div class="cols" style="grid-template-columns:auto minmax(0,1fr);gap:48px">
+    <div class="rv">
+      <div class="gauge"><svg viewBox="0 0 240 240" width="240" height="240"><circle class="bg" cx="120" cy="120" r="${R}"/><circle class="fg" id="gf" cx="120" cy="120" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-to="${ok ? C * (1 - v.생존확률) : C}"/></svg>
+        <div class="c">${ok ? `<b>${cnt(v.생존확률, 'pct0')}</b><span>${v.횟수.toLocaleString('ko-KR')}번 중 버틴 비율</span>` : `<b style="font-size:24px;letter-spacing:-.03em">모델 보완 중</b><span>곧 숫자로 보여 드려요</span>`}</div></div>
+      <div class="one" style="text-align:center">${D.조합.확인시 ? (tab === '확인시' ? '확인 시 조합' : '기본 조합') + ' 기준' : ''}${dot('가정', '월별 잔고를 여러 번 돌려 한 번도 0 아래로 내려가지 않은 비율. 입력값의 가정은 아래 "입력값과 출처" 참고')}</div>
+    </div>
+    <div>
+      <div class="rv" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="legend"><span><i></i>잔고 중앙값</span><span><i class="d"></i>하위 10% 선</span></div><button class="play" id="play">▶ 재생</button></div>
+      <div class="chartbox rv" id="cb" style="margin-top:10px"></div>
+      <div class="chips rv">
+        ${v.초기부진개월 ? `<div class="chip"><div class="l">초기 부진 구간</div><div class="v">1~${v.초기부진개월}개월차${dot('가정', '개점 후 첫 ' + v.초기부진개월 + '개월은 매출이 낮다고 봄. 이 구간의 잔고 중앙값 최저는 ' + v.초기부진_최저월 + '개월차 ' + won(v.초기부진_최저잔고))}</div></div>` : ''}
+        ${v.위기월 ? `<div class="chip"><div class="l">위기 시점${v.위기_개점초기 ? ' · 개점 초기' : ''}</div><div class="v">${v.위기월}개월차${dot('가정', '잔고 중앙값이 처음 0 아래로 내려가는 달')}</div></div>
+        <div class="chip"><div class="l">그때 잔고</div><div class="v">${won(v.위기잔고)}</div></div>` : `<div class="chip"><div class="l">위기 시점</div><div class="v">없음${dot('가정', '잔고 중앙값이 0 아래로 내려가지 않았어요. 위기 시점 = 잔고 중앙값이 처음 0 아래로 내려가는 달')}</div></div>
+        <div class="chip"><div class="l">잔고가 가장 낮은 달</div><div class="v">${v.최저월}개월차 · ${won(v.최저잔고)}</div></div>`}
+        <div class="chip"><div class="l">하위 10%가 0 아래</div><div class="v">${v.하위10_첫음수월 == null ? '없음' : v.하위10_첫음수월 + '개월차'}</div></div>
+      </div>
+      ${v.경고.map(x => `<div class="alert w rv"><i></i><div><span>${esc(x.split(' (')[0])}</span></div></div>`).join('')}
+      ${v.손익 ? `<div class="rv" style="margin-top:18px"><b>왜 이 확률인가요</b>${dot('가정', '월 손익 = 매출 × (1 − 변동비율) − 고정비. 고정비는 월세·관리비, 인건비, 공과금, 대출 상환, 기존 대출 이자, 새 점포 생활비 부담. 변동비는 재료비, 카드 수수료, 기타 변동비. 표는 회차 평균')}
+        <div class="dl">${Object.entries(v.손익).filter(([, x]) => x).map(([k, x]) => `<div><span>${esc(k)} ${x.회차수.toLocaleString('ko-KR')}번 · 월 매출 ${won(x.월매출)}</span><span>월 ${x.월손익 >= 0 ? '+' : ''}${won(x.월손익)} · 생존 ${pct(x.생존확률, 0)}</span></div>`).join('')}
+        <div><span>월 고정비 ${won(v.고정비_만원 + (v.손익['정상 회차'] ? v.손익['정상 회차'].대출상환 : 0))} · 변동비 매출의 ${pct(v.변동비율, 0)}</span><span>손익분기 매출 ${won(v.손익분기매출_만원)}</span></div></div>
+        ${v.업종평균가정 && v.업종평균가정.length ? `<div class="mapnote"><span class="st chk">업종 평균 가정</span> ${esc(v.업종평균가정.join(' · '))}은 같은 업종 자료가 없어 전 업종 평균을 썼어요</div>` : ''}
+        <div class="mapnote"><span class="st chk">보정한 가정</span> 부진 점포 확률과 부진 매출 범위는 상권 폐업률에 맞춰 조정했어요${v.데이터_36개월생존율 != null ? ` · 36개월 생존 ${pct(v.생존확률_36, 0)} (데이터 환산 ${pct(v.데이터_36개월생존율, 0)})` : ''}</div></div>` : ''}
+      ${v.생활비기준_만원 != null && v.입력['고정비: 새 점포 생활비 부담'] ? `<div class="one rv">새 점포가 내는 생활비 <b>월 ${won(v.생활비반영_만원)}</b>${dot(v.입력['고정비: 새 점포 생활비 부담'].표시, v.입력['고정비: 새 점포 생활비 부담'].출처)}${v.기존가게여유현금_만원 != null ? ` · 생활비 ${won(v.생활비기준_만원)} − 기존 가게 여유 현금 ${won(v.기존가게여유현금_만원)}` : ''}</div>` : ''}
+      ${v.민감도 ? `<details class="rv" open><summary>가정을 바꾸면</summary><div class="dl">${Object.entries(v.민감도).map(([k, x]) => `<div><span>${esc(k)}${dot('가정', '같은 난수로 이 가정 하나만 바꿔 다시 계산한 생존 확률')}</span><span>${pct(x)}</span></div>`).join('')}</div></details>` : ''}
+      <details class="rv"><summary>입력값과 출처</summary><div class="dl">${Object.entries(v.입력).map(([k, x]) => `<div><span>${esc(k)}${dot(x.표시, x.출처)}</span><span>${Array.isArray(x.값) ? x.값.map(n => n.toLocaleString('ko-KR')).join('~') + '만' : typeof x.값 === 'object' && x.값 ? Object.values(x.값).join(' / ') : esc(x.값)}</span></div>`).join('')}</div></details>
+    </div>
+  </div>`;
+}
+function drawChart(animate) {
+  const v = simv(), box = $('#cb'); if (!v || !box) return;
+  const c = combo(), pay = c ? c.월별 : [], W = 720, H = 300, Lm = 6, Rm = 6, T = 30, B = 34, n = v.개월;
+  const all = v.중앙값.concat(v.하위10, [0]), lo = Math.min(...all), hi = Math.max(...all);
+  const x = i => Lm + (W - Lm - Rm) * i / (n - 1), y = val => T + (H - T - B) * (1 - (val - lo) / ((hi - lo) || 1));
+  const path = a => a.map((val, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(val).toFixed(1)}`).join('');
+  const ticks = (n > 60 ? [24, 48, 72, 96] : [12, 24, 36, 48, 60]).filter(m => m <= n);
+  const marks = [];
+  (c ? c.rows : []).forEach(r => { const g = /거치 (\d+)개월/.exec(r.계산방식); if (g && +g[1] < n) marks.push({m: +g[1] + 1, t: '거치 종료'}); if (r.상환방식 === '만기일시' && r.기간 <= n) marks.push({m: r.기간, t: '원금 상환'}); });
+  const ci = (v.위기월 || v.최저월 || 1) - 1, clabel = v.위기월 ? `위기 시점 ${v.위기월}개월차${v.위기_개점초기 ? ' · 개점 초기' : ''}` : `위기 시점 없음 · 최저 ${v.최저월}개월차`, cw = clabel.length * 11.5 + 24;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 잔고 그래프"><defs><clipPath id="cp"><rect id="cpr" x="0" y="0" width="${animate ? 0 : W}" height="${H}"/></clipPath></defs>
+    ${v.초기부진개월 ? `<rect x="${x(0)}" y="${T}" width="${x(v.초기부진개월 - 1) - x(0)}" height="${H - T - B}" fill="#6246E5" opacity=".07" rx="4"/><text x="${x(0) + 4}" y="${T + 16}" font-size="12" font-weight="700" fill="#6246E5">초기 부진</text>` : ''}
+    <line x1="${Lm}" x2="${W - Rm}" y1="${y(0)}" y2="${y(0)}" stroke="#CDD0DA"/>
+    ${ticks.map(m => `<text x="${x(m - 1)}" y="${H - 8}" font-size="13" fill="#8B90A0" text-anchor="${m === n ? 'end' : 'middle'}">${m}개월</text>`).join('')}
+    ${[...new Map(marks.map(k => [k.m, k])).values()].map(k => `<line x1="${x(k.m - 1)}" x2="${x(k.m - 1)}" y1="${T}" y2="${H - B}" stroke="#D48A0C" stroke-dasharray="3 4"/><text x="${x(k.m - 1)}" y="${T - 8}" font-size="12" font-weight="700" fill="#B26A00" text-anchor="middle">${k.t}</text>`).join('')}
+    <g clip-path="url(#cp)"><path d="${path(v.하위10)}" fill="none" stroke="#A9AEBB" stroke-width="2" stroke-dasharray="6 6"/><path d="${path(v.중앙값)}" fill="none" stroke="#6246E5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g id="cr"><circle cx="${x(ci)}" cy="${y(v.중앙값[ci])}" r="6" fill="#fff" stroke="#6246E5" stroke-width="3"/>
+      <g transform="translate(${Math.min(Math.max(x(ci), cw / 2 + 4), W - cw / 2 - 4)},${y(v.중앙값[ci]) - 16})"><rect x="${-cw / 2}" y="-26" width="${cw}" height="24" rx="12" fill="#16171D"/><text y="-9" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">${clabel}</text></g></g>
+    <line id="hl" y1="${T}" y2="${H - B}" stroke="#16171D" stroke-width="1" opacity="0"/><circle id="hd" r="5" fill="#6246E5" opacity="0"/>
+    <rect x="0" y="0" width="${W}" height="${H}" fill="transparent" id="hit"/></svg><div class="tip" id="tp"></div>`;
+  const hit = $('#hit', box), tp = $('#tp', box), hl = $('#hl', box), hd = $('#hd', box);
+  const move = e => { const r = hit.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.round(((e.clientX - r.left) / r.width * W - Lm) / (W - Lm - Rm) * (n - 1))));
+    hl.setAttribute('x1', x(i)); hl.setAttribute('x2', x(i)); hl.setAttribute('opacity', .25); hd.setAttribute('cx', x(i)); hd.setAttribute('cy', y(v.중앙값[i])); hd.setAttribute('opacity', 1);
+    tp.innerHTML = `<b>${i + 1}개월차</b>잔고 ${won(v.중앙값[i])}<br>하위 10% ${won(v.하위10[i])}<br>상환 ${(pay[i] || 0).toFixed(1)}만 원`;
+    tp.style.left = (x(i) / W * 100) + '%'; tp.style.top = (y(v.중앙값[i]) / H * 100) + '%'; tp.classList.add('on'); };
+  hit.addEventListener('mousemove', move); hit.addEventListener('mouseleave', () => { tp.classList.remove('on'); hl.setAttribute('opacity', 0); hd.setAttribute('opacity', 0); });
+  if (animate) { const r = $('#cpr', box), t0 = performance.now(), dur = 2600, cr = $('#cr', box); cr.style.opacity = 0;
+    const tick = t => { const k = Math.min(1, (t - t0) / dur); r.setAttribute('width', W * k); $('#play').textContent = k < 1 ? `${Math.max(1, Math.round(k * n))}개월차` : '▶ 다시 재생'; if (k < 1) requestAnimationFrame(tick); else { cr.style.transition = 'opacity .4s'; cr.style.opacity = 1; } };
+    requestAnimationFrame(tick); }
+}
+
+/* ---------- 6 요약 ---------- */
+// 사장님 화면에서는 규칙 번호(R1-1 등)를 숨기고 쉬운 이름으로 보여 준다. 번호는 심사 참고 화면과 리포트에서만 보인다.
+const RULE_LABEL = {R1: '출점 유형', R2: '추정값 적용', R3: '상권 위험', R4: '상환·신용 주의', R5: '자격 확인 필요', R6: '생존 분석', R7: '자격 해석', R8: '선택지 비교', R9: '심사 의견'};
+const ruleLabel = r => r === 'R4-8' ? '출점 재검토' : RULE_LABEL[String(r || '').slice(0, 2)] || '판단';
+/* ---------- AI가 직접 판단하는 세 가지 (R7 자격 해석, R8 선택지 비교, R9 심사 의견) ---------- */
+const vcls = s => ({'가능': 'ok', '가능성 높음': 'okl', '어려울 가능성 높음': 'warnl', '불가': 'no', '확인 필요': 'chk', '승인 권고': 'ok', '조건부': 'warn', '보류': 'no'}[s] || 'chk');
+function eligBlock() {      // 4단계: 코드가 '확인 필요'로 남긴 상품을 AI가 상품 문구로 해석
+  if (!ADV || !ADV.자격해석 || !ADV.자격해석.length) return '';
+  const n = {}; ADV.자격해석.forEach(x => n[x.AI판정] = (n[x.AI판정] || 0) + 1);
+  return `<details class="rv" open><summary><span class="sumrow">AI 자격 해석 ${ADV.자격해석.length}건 ${Object.entries(n).map(([k, c]) => `<span class="st ${vcls(k)}">${esc(k)} ${c}</span>`).join('')}</span></summary>
+    <div>${ADV.자격해석.map(x => `<div class="pr" data-rule="${esc(x.규칙)}"><span>${esc(x.상품명)}${x.판정바뀜 ? ' <span class="st warn" style="padding:2px 8px">판정 바뀜</span>' : ''}<small>상품 문구 “${esc(x.인용)}”</small>${x.법령 ? `<small>법령 ${esc(x.법령.법령명)} ${esc(x.법령.조문번호)}(${esc(x.법령.조문제목)}) “${esc(x.법령.인용문)}”${dot('', '시행일 ' + x.법령.시행일 + ' · 조회일 ' + x.법령.조회일 + ' · korean-law-mcp로 조회해 config/법령/에 저장한 원문과 글자 그대로 대조')}</small>` : ''}<small style="color:var(--ink2)">${esc(x.이유)}</small>${x.판정바뀜 ? `<small>${esc(x.조합반영 || '')}</small>` : ''}</span><span style="text-align:right;flex:none"><span class="st ${vcls(x.AI판정)}">${esc(x.AI판정)}</span></span></div>`).join('')}</div>
+    <p class="mapnote">${esc(ADV.자격해석_안내 || '').replace(/\s*\(R\d-\d\)/, '')}</p></details>`;
+}
+function alertBox() {      // 관심 상권에 매물이 없을 때: 매물 알림 받기 (데모: 실제 알림은 보내지 않고 누른 기록만 화면에 남긴다)
+  const mm = (D.선택지기준 || {}).매물없음; if (!mm) return '';
+  const on = ALERTS.has(D.id);
+  return `<div class="band rv" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:20px 22px">
+    <div><b style="font-size:16px">${on ? esc(mm.알림문구) : esc(mm.안내)}</b><div class="mapnote" style="margin-top:4px">${on ? '데모라 실제 알림은 보내지 않아요' : '새 매물이 나오면 알림으로 받아 볼 수 있어요'}</div></div>
+    <button class="alertbtn" data-alert="1" aria-pressed="${on}">${on ? '알림 신청됨' : '매물 알림 받기'}</button></div>`;
+}
+function optCrisis(o) { return o.위기월 ? `${o.위기월}개월차${o.위기_개점초기 ? ' · 개점 초기' : ''}` : (o.최저월 ? '없음' : '-'); }
+function optionBlock() {    // 6단계: 선택지 비교 카드. 표는 engine이 계산, 추천은 AI
+  const os = D.선택지 || []; if (!os.length) return '';
+  const crit = D.선택지기준 || {}, pick = crit.추천 || null, sug = crit.대안제안 || null, rv = crit.재검토안내;
+  const rec = ADV && ADV.선택지추천 && (ADV.선택지추천.추천 || null) === pick && (ADV.선택지추천.종류 || '추천') === (crit.종류 || '추천') ? ADV.선택지추천 : null;
+  const ex = {}; (crit.기준적용 || []).forEach(n => { if (n.제외) ex[n.이름] = n; });
+  const cons = {}; ((rec && rec.단점) || []).forEach(x => cons[x.선택지] = x.단점);
+  return `<div class="opt-card"><div class="sumrow"><b style="font-size:18px">선택지 비교</b><span class="st chk">${esc(ruleLabel('R8'))}</span>${dot('가정', '지금 계획과 세 가지 대안을 같은 계산으로 다시 돌린 값이에요. 생존 확률은 가정이 많은 값이라 참고로 봐 주세요')}</div>
+    ${rv ? `<div class="alert" style="margin-top:14px"><i></i><div><b>${esc(rv.제목)}</b>${rv.이유.map(x => `<span style="display:block">${esc(x)}</span>`).join('')}</div></div>` : ''}
+    ${crit.매물없음 ? alertBox() : ''}
+    <div class="otab"><div class="oh"><span>선택지</span><span>필요 자금</span><span>대출</span><span>월 최대 상환</span><span>생존 확률</span><span>위기 시점</span></div>
+    ${os.map(o => o.해당없음 ? `<div class="or na"><span><b>${esc(o.이름)}</b><small>${esc(o.설명)}</small></span><span class="x">해당 없음 · ${esc(o.해당없음)}</span></div>` :
+      `<div class="or ${o.이름 === pick || o.이름 === sug ? 'pick' : ''}"><span><b>${esc(o.이름)}</b>${o.이름 === pick ? ' <span class="st ok">추천</span>' : ''}${o.이름 === sug ? ' <span class="st chk">대안 제안</span>' : ''}${ex[o.이름] ? ` <span class="st no">${ex[o.이름].제외종류 === '확인 필요' ? '확인 전이라 추천 제외' : '자기자본 더 필요'}</span>` : ''}${o.표시 && !(ex[o.이름] && ex[o.이름].제외종류 === '확인 필요') ? ` <span class="st chk">${esc(o.표시)}</span>` : ''}<small>${esc(o.설명)}</small></span><span>${won(o.총필요자금)}</span><span>${won(o.대출금액)}${o.못채운금액 > 0 ? `<small>못 채움 ${won(o.못채운금액)}</small>` : ''}</span><span>${o.월최대상환 == null ? '-' : won(o.월최대상환)}</span><span>${o.생존확률 == null ? '-' : pct(o.생존확률)}</span><span>${optCrisis(o)}</span></div>`).join('')}</div>
+    ${crit.우선순위 ? `<p class="mapnote">추천 기준(이 순서로 코드가 적용): ${crit.우선순위.map(esc).join(' → ')} · 자기자본은 <span class="st chk" style="padding:2px 8px">확인 필요</span>${dot('가정', (crit.단계 || []).join(' / ') + '. ' + (crit.출처 || ''))}</p>` : ''}
+    ${rec ? `<div class="ai" style="margin-top:16px"><p><b>${pick ? esc(pick) + '을(를) 권해요' : (sug ? '추천 대신 대안을 제안해요' : '지금은 추천하지 않아요')}</b></p>${rec.이유.map(s => `<p>${esc(s)}</p>`).join('')}</div>
+      <div class="dl">${Object.entries(cons).map(([k, v]) => `<div><span>${esc(k)}</span><span style="font-weight:500;color:var(--ink2)">${esc(v)}</span></div>`).join('')}</div>
+      <p class="mapnote">표의 숫자와 추천은 코드가 정해진 기준으로 냈고, 이유와 단점은 AI가 판단 규칙으로 썼어요. 결정은 사장님이 하세요</p>` : `<div class="ai" style="margin-top:16px"><p><b>${pick ? esc(pick) + '을(를) 권해요' : (sug ? '추천 대신 대안을 제안해요' : '지금은 추천하지 않아요')}</b></p><p class="muted">AI 설명은 준비 중이에요</p></div>`}</div>`;
+}
+function aiBlock() {
+  if (!AI || !AI.문장 || !AI.문장.length) return `<div class="ai"><p class="muted">${AIWAIT ? 'AI 해석 준비 중이에요 · 숫자는 먼저 보여 드려요' : AIERR ? 'AI 해석을 받지 못했어요 (' + esc(AIERR) + ') · 숫자는 그대로 볼 수 있어요' : 'AI 해석은 준비 중이에요'}</p></div>`;
+  const order = ['R4-8', 'R6', 'R3', 'R4', 'R2', 'R5', 'R1'], rank = r => { const i = order.findIndex(k => r.startsWith(k)); return i < 0 ? 9 : i; };
+  const sorted = AI.문장.map((s, i) => [s, i]).sort((x, y) => rank(x[0].규칙) - rank(y[0].규칙) || x[1] - y[1]).map(x => x[0]);
+  const top = sorted.slice(0, 6), rest = sorted.slice(6), line = s => `<p>${esc(s.문장)}<em data-rule="${esc(s.규칙)}">${esc(ruleLabel(s.규칙))}</em></p>`;
+  return `<div class="ai">${AI.한줄요약 ? `<p><b>${esc(AI.한줄요약)}</b></p>` : ''}${top.map(line).join('')}${rest.length ? `<details><summary>문장 ${rest.length}개 더 보기</summary>${rest.map(line).join('')}</details>` : ''}</div>
+  <p class="mapnote">AI는 판단 규칙으로 문장만 썼어요. 숫자는 계산 결과와 대조해 통과한 것만 보여요${dot('', `모델 ${AI.모델 || ''} · 막힌 문장 ${AI.막힌문장수 ?? 0}개 · 규칙: .claude/skills/출점-판단-규칙/SKILL.md`)}</p>`;
+}
+function p6() {
+  const s = D.요약, c = D.조합.기본 || D.조합.확인시, v = D.생존.기본, todo = todoItems(), g = D.진단;
+  return `<div class="kicker">6 / 6 · 결과 요약</div><h1>${esc(s.관심지역 || s.지역)} ${esc(s.업종)} ${esc(s.희망용도 || '')}</h1>
+  <div class="report rv">
+    <div class="sumrow">${g ? st(g.판정) : ''}${D.재검토 ? '<span class="st no">출점 재검토 권고</span>' : ''}${D.참고용 ? '<span class="st warn">참고용(매물 확정 전)</span>' : ''}</div>
+    <div class="band say">
+      <div class="s1">${esc(s.관심지역 || s.지역)} ${esc(s.업종)} ${esc(s.희망용도 || '')}에는</div>
+      ${D.총필요 ? `<div class="s2">총 ${cnt(D.총필요, 'won')}${dot(D.자금 ? D.자금['총 필요 자금'].표시 : '추정', D.자금 ? D.자금['총 필요 자금'].출처 : '')}</div><div class="s3">이 필요해요</div>
+        <div class="s4">그중 ${won(D.부족자금)}을 빌리고, 나머지 ${won(D.총필요 - D.부족자금)}은 자기자본 확인이 필요해요</div>`
+        : `<div class="s2" style="font-size:30px">매물이 정해져야 알 수 있어요</div><div class="s4">관심 상권에 거래중 매물이 없어 필요 자금을 계산하지 못했어요</div>`}
+    </div>
+    <div class="k4">
+      <div><div class="l">총 필요 자금</div><div class="v">${D.총필요 ? cnt(D.총필요, 'won') : '확인 필요'}</div></div>
+      <div><div class="l">대출 가능</div><div class="v">${c ? cnt(c.금액, 'won') : '없음'}</div></div>
+      <div><div class="l">월 최대 상환</div><div class="v">${c ? cnt(c.최대월, 'won') : '-'}</div></div>
+      <div><div class="l">생존 확률</div><div class="v">${modelReady(v) ? cnt(v.생존확률, 'pct0') : (v ? '보완 중' : '계산 전')}</div></div>
+    </div>
+    ${aiBlock()}
+    ${optionBlock()}
+    <details><summary>확인 필요 ${todo.length}개</summary><ul class="ck">${todo.map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>
+    <details><summary>이렇게 판단했어요 ${D.규칙.length}개</summary><div class="dl">${D.규칙.map(r => `<div data-rule="${esc(r.번호)}"><span><span class="st chk">${esc(ruleLabel(r.번호))}</span></span><span>${esc(r.내용)}</span></div>`).join('')}</div></details>
+    <div id="qa"></div>
+    <button class="cta" type="button" aria-disabled="true">핀다에서 대출 신청하기</button><p class="mapnote">데모라 버튼은 동작하지 않아요 · 기준일 ${esc(D.기준일)} · 모두 가상 데이터</p>
+  </div>`;
+}
+
+/* ---------- AI에게 물어보기 (사장님 화면 6단계 전용. 규칙 R10, engine/chat.py) ---------- */
+const QAWARM = {};              // 6단계를 열면 서버에 미리 한 번 알려 첫 답이 빨리 나오게 한다 (4분에 한 번)
+const QA = {}, QAFIX = {};      // QA: 이번에 주고받은 질문과 답(메모리에만). QAFIX: 발표 시연용으로 미리 만들어 고정한 답(data/qa_<id>.json)
+const QLATE = 15000;
+const qEx = () => D.재검토 ? ['그래도 가게를 내고 싶어요', '제일 위험한 게 뭐예요?', '대출을 줄이면 어떻게 돼요?', '이거 대출 나오는 거 확실해요?']
+  : ['제일 위험한 게 뭐예요?', '대출을 줄이면 어떻게 돼요?', '2호점도 창업 지원 받을 수 있어요?', '이거 대출 나오는 거 확실해요?'];
+function qaItem(it) {
+  let body;
+  if (it.state === 'wait') body = '<p class="wait">답을 정리하고 있어요</p>';
+  else if (it.state === 'late') body = '<p class="wait">지금은 답이 늦어지고 있어요. 잠시 후 다시 물어봐 주세요</p>';
+  else if (it.state === 'err') body = `<p class="wait">${esc(it.msg || '답을 받지 못했어요')}</p>`;
+  else { const a = it.a;
+    body = a.답.map(s => `<p>${esc(s)}</p>`).join('') + (a.조문 && a.조문.length ? `<span class="law">근거 조문: ${a.조문.map(esc).join(' · ')}</span>` : '')
+      + (a.링크 ? (a.근거단계 === 6 ? `<button type="button" class="lnk" data-scroll="opt">${esc(a.링크)}</button>` : `<button type="button" class="lnk" data-step="${a.근거단계}">${esc(a.링크)}</button>`) : ''); }
+  return `<div class="qb me">${esc(it.q)}</div><div class="qb ai">${body}</div>`;
+}
+function drawQA() {
+  const el = $('#qa'); if (!el) return;
+  if (API && Date.now() - (QAWARM[D.id] || 0) > 240000) { QAWARM[D.id] = Date.now();
+    fetch('/api/ask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: D.id, live: !!D.실시간, warm: true})}).catch(() => {}); }
+  const list = QA[D.id] || [];
+  el.innerHTML = `<div class="qa-card"><div class="sumrow"><b style="font-size:18px">궁금한 점을 물어보세요</b><span class="st chk">AI에게 물어보기</span>${dot('', 'AI는 지금 화면의 계산 결과와 판단 규칙만 보고 답해요. 숫자는 계산 결과와 대조해 통과한 것만 보여요. 최종 승인과 한도는 금융사·보증기관이 정해요')}</div>
+    <div class="qa-ex">${qEx().map(q => `<button type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    ${list.length ? `<div class="qa-log">${list.map(qaItem).join('')}</div>` : ''}
+    <form class="qa-in" id="qaf"><input id="qai" maxlength="200" autocomplete="off" placeholder="예: 왜 생존 확률이 이 값이에요?" aria-label="질문"><button class="alertbtn" type="submit">물어보기</button></form>
+    <p class="mapnote">지금 결과만 보고 3~4문장으로 답해요. 질문은 저장하지 않아요</p></div>`;
+}
+async function askQ(q) {
+  q = String(q || '').replace(/\s+/g, ' ').trim(); if (!q) return;
+  const id = D.id, live = !!D.실시간, list = QA[id] = QA[id] || [], it = {q, state: 'wait'};
+  if (list.some(x => x.state === 'wait')) return;       // 답을 기다리는 동안에는 하나씩만
+  list.push(it); drawQA();
+  const done = () => { if (D.id === id) drawQA(); };
+  const fx = !live && (QAFIX[id] || []).find(x => x.질문 === q);
+  if (fx) { await new Promise(r => setTimeout(r, 700)); it.a = fx; it.state = 'ok'; return done(); }
+  if (!API) { it.state = 'err'; it.msg = '서버(python server.py)로 열어야 새 질문에 답할 수 있어요'; return done(); }
+  const ctl = new AbortController(), tm = setTimeout(() => { it.state = 'late'; done(); ctl.abort(); }, QLATE);
+  try {
+    const r = await fetch('/api/ask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, live, question: q}), signal: ctl.signal});
+    const j = await r.json(); clearTimeout(tm);
+    if (j.오류 || !j.답) { it.state = 'err'; it.msg = 'AI 답을 받지 못했어요 (' + (j.오류 || '오류') + ')'; } else { it.a = j; it.state = 'ok'; }
+  } catch (e) { clearTimeout(tm); if (it.state !== 'late') { it.state = 'err'; it.msg = '답을 받지 못했어요. 잠시 후 다시 물어봐 주세요'; } }
+  done();
+}
+document.addEventListener('submit', e => { if (e.target.id !== 'qaf') return; e.preventDefault(); const i = $('#qai'); askQ(i.value); });
+
+/* ---------- 심사 참고 화면 (핀다와 금융사 중 누가 쓰는지는 확인 중) ---------- */
+// 화면 구성만 다룬다. 숫자는 engine 결과(D), 의견·근거·확인할 것은 AI 판단 결과(ADV)를 그대로 보여 준다.
+const cut1 = s => { s = String(s || ''); const i = s.search(/[.!?](\s|$)/); return i < 0 || i + 1 >= s.length ? [s, ''] : [s.slice(0, i + 1), s.slice(i + 1).trim()]; };
+function staff() {
+  const s = D.요약, g = D.진단, c = D.조합.기본 || D.조합.확인시, v = D.생존.기본, n = D.판정수;
+  const o = (ADV && ADV.심사의견 && ADV.심사의견.의견) ? ADV.심사의견 : null;
+  const rules = o ? (o.규칙 || []) : [];
+  // 위험 신호: 배지로 모은다. [색, 이름, 설명]
+  const risks = [];
+  if (D.재검토) risks.push(['no', '출점 재검토 권고', '여유 현금 또는 희망자금 비율 미달 + 연체']);
+  if (s.연체 !== '없음') risks.push(['no', `연체 ${s.연체}`, '최근 1년']);
+  if (g && g.판정 !== '양호') risks.push(['warn', `상권 ${g.판정}`, g.신호[0] || '']);
+  if (D.참고용) risks.push(['warn', '매물 미확정', '필요 자금과 생존 확률을 계산하지 못함. 조합은 참고용']);
+  if (D.안전상환 && c && c.최대월 > D.안전상환) risks.push(['warn', '안전 상환 기준 초과', `가장 많이 내는 달 ${won(c.최대월)} > 기준 ${won(D.안전상환)} (월 여유 현금의 50%, 가정)`]);
+  (c ? c.경고 : []).forEach(x => risks.push(['warn', x.includes('만기일시') ? '만기에 원금 한 번에 상환' : '거치 뒤 상환액 증가', x]));
+  if (c && c.못채움 > 0) risks.push(['warn', `한도 부족 ${won(c.못채움)}`, '상품 한도로 희망 금액을 다 채우지 못함']);
+  if (s.사업장확인) risks.push(['warn', '현재 사업장 미확인', '보증금·월세가 모두 0']);
+  (v ? v.경고 : []).forEach(x => risks.push(['warn', '대출 기간 > 평균영업기간', x.split(' (')[0]]));
+  const est = [];
+  if (s.월여유현금.표시) est.push(['월 여유 현금', s.월여유현금.표시]);
+  if (s.근사) est.push(['업종 매핑', '근사']);
+  if (D.자금) Object.entries(D.자금).forEach(([k, x]) => { if (x.표시) est.push([k, x.표시]); });
+  est.push(['기존 대출 금리', '가정 · 확인 필요']);
+  if (v) est.push(['생존 확률', '가정으로 만든 값']);
+  const todo = todoItems();
+  const [why, whyRest] = o ? cut1(o.근거[0]) : ['', ''];
+  const surv = modelReady(v) ? pct(v.생존확률, 0) : null;
+  const card = (l, val, d, bad) => `<div><div class="l">${l}</div><div class="v">${val}</div><div class="d ${bad ? 'bad' : ''}">${d || ''}</div></div>`;
+  return `<div class="kicker">심사 참고 화면${dot('', '대출 심사를 돕는 참고 화면이에요. 실제로 누가 쓰는지(핀다 또는 금융사)는 확인 중이에요')}</div>
+  <h1>${esc(s.업종)} · ${esc(s.관심지역 || s.지역)} ${esc(s.희망용도 || '')}</h1>
+  <p class="lead" style="font-size:14px">${esc(D.id)} · ${esc(s.지역)} · ${esc(s.회원구분)} · 신용점수 ${s.신용점수} · 업력 ${s.업력}개월 · 월 여유 현금 ${s.월여유현금.값 == null ? '확인 필요' : won(s.월여유현금.값)}${s.월여유현금.표시 ? '(' + esc(s.월여유현금.표시) + ')' : ''} · 서류 ${esc(s.서류)}</p>
+  ${o ? `<div class="vd"><div class="op ${vcls(o.의견)}"><small>AI 심사 의견</small>${esc(o.의견)}</div>
+    <div class="why">${esc(why)}<small>가장 중요한 이유 · 근거 ${o.근거.length}개 중 첫 번째${rules.length ? ` <span class="rn">${rules.map(esc).join(' · ')}</span>` : ''}</small></div></div>`
+    : `<div class="vd"><div class="op chk"><small>AI 심사 의견</small>${AIWAIT ? '준비 중' : '없음'}</div><div class="why">${AIWAIT ? 'AI 의견을 만드는 중이에요. 숫자는 먼저 볼 수 있어요' : AIERR ? 'AI 의견을 받지 못했어요 (' + esc(AIERR) + ')' : 'AI 의견이 아직 없어요. 아래 숫자와 위험 신호로 판단해 주세요'}</div></div>`}
+  <div class="human"><i></i><div>AI 의견은 참고예요. 최종 결정은 사람이 해요. <span>숫자는 코드가 계산했고, 문장은 숫자 검증을 통과한 것만 보여요</span></div></div>
+  <div class="k5">
+    ${card('부족 자금' + dot('가정', '자기자본 데이터가 없어 희망자금을 부족 자금으로 봤어요'), won(D.부족자금), D.총필요 ? '총 필요 자금 ' + won(D.총필요) : '총 필요 자금 확인 필요')}
+    ${card('추천 대출 조합', c ? won(c.금액) : '없음', c ? `상품 ${c.rows.length}개${c.못채움 > 0 ? ' · 못 채움 ' + won(c.못채움) : ''}${D.참고용 ? ' · 참고용' : ''}` : '조합할 상품이 없어요')}
+    ${card((c && c.거치있음 ? '거치 후 ' : '') + '최대 월 상환액', c ? won(c.최대월) : '-', c ? (D.안전상환 ? (c.최대월 <= D.안전상환 ? '안전 기준 ' + won(D.안전상환) + ' 안' : '안전 기준 ' + won(D.안전상환) + ' 초과') : '안전 기준 확인 필요') + ` · ${c.거치있음 ? '거치 중' : '첫 달'} ${won(c.첫달)}` : '', c && D.안전상환 && c.최대월 > D.안전상환)}
+    ${card('생존 확률' + dot('가정', '새 점포 잔고를 여러 번 돌려 한 번도 0 아래로 내려가지 않은 비율. 가정이 많은 값이에요'), surv || '계산 전', surv ? `${v.개월}개월 기준 · 36개월까지 ${pct(v.생존확률_36, 0)}` : '매물이 정해져야 계산해요')}
+    ${card('상권 연 폐업률' + dot('', g ? g.연폐업률출처 : ''), g ? pct(g.연폐업률) : '-', g ? `${esc(g.상권명)} · 평균영업기간 ${g.평균영업기간}개월` : '상권 진단 없음')}
+  </div>
+  <div class="chips"><b>위험 신호 ${risks.length}개</b>${risks.map(([k, a, b]) => `<span class="st ${k}" title="${esc(b)}">${esc(a)}</span>`).join('') || '<span class="st ok">뚜렷한 위험 신호 없음</span>'}<span class="st chk" title="${esc(est.map(x => x[0]).join(', '))}">추정·가정 값 ${est.length}개</span></div>
+  ${risks.length ? `<details style="margin-top:8px"><summary>위험 신호 설명</summary><div class="dl">${risks.map(([k, a, b]) => `<div><span><span class="st ${k}">${esc(a)}</span></span><span style="font-weight:500">${esc(b)}</span></div>`).join('')}</div></details>` : ''}
+  ${o ? `<div class="cols" style="margin-top:30px">
+    <div><div class="sh">근거 ${o.근거.length}개${rules.length ? `<span class="rn">${rules.map(esc).join(' · ')}</span>` : ''}</div>
+      <ol class="pt">${o.근거.map((x, i) => { const [a, b] = cut1(x); return `<li><b>${i + 1}. ${esc(a)}</b>${b ? `<details><summary>자세히</summary><p>${esc(b)}</p></details>` : ''}</li>`; }).join('')}</ol></div>
+    <div><div class="sh">확인할 서류·질문 ${o.확인할것.length}개</div>
+      <ul class="ck">${o.확인할것.map(x => { const [a, b] = cut1(x); return `<li><label><input type="checkbox"><span>${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</span></label></li>`; }).join('')}</ul></div>
+  </div>` : ''}
+  <div class="fold">
+    <details><summary>대출 조합 ${c ? c.rows.length + '개 상품 · ' + won(c.금액) : '없음'} · 상품 판정 가능 ${n['가능'] || 0} / 확인 필요 ${n['확인 필요'] || 0} / 불가 ${n['불가'] || 0}</summary>
+      ${c ? `<div class="dl">${c.rows.map(r => `<div><span>${esc(r.상품명)} ${st(r.상태)}<br><span class="muted">${esc(r.금융사)} · ${esc(r.상환방식)} · ${r.기간}개월 · ${r.최저금리}~${r.최고금리}%</span></span><span>${won(r.금액)}</span></div>`).join('')}
+        <div><span>총이자${c.보증료 > 0.5 ? ' + 보증료' : ''}</span><span>${won(c.총이자)}${c.보증료 > 0.5 ? ' + ' + won(c.보증료) : ''}</span></div></div>
+        ${c.선택 && c.선택.이유 ? `<p class="mapnote">왜 이 조합인가요: ${esc(c.선택.이유)}</p>` : ''}` : ''}</details>
+    ${ADV && ADV.자격해석 && ADV.자격해석.length ? `<details><summary><span>AI 자격 해석 ${ADV.자격해석.length}건<span class="rn">R7-1</span></span></summary><div class="dl">${ADV.자격해석.map(x => `<div><span>${esc(x.상품코드)} ${esc(x.상품명)} · “${esc(x.인용)}”${x.법령 ? `<br>${esc(x.법령.법령명)} ${esc(x.법령.조문번호)} · “${esc(x.법령.인용문)}”` : ''}<br><span class="muted">${esc(x.이유)}</span></span><span>${st(x.AI판정)}</span></div>`).join('')}</div></details>` : ''}
+    ${ADV && ADV.선택지추천 && ADV.선택지추천.추천 ? `<details><summary><span>사장님에게 보인 선택지 추천: ${esc(ADV.선택지추천.추천)}<span class="rn">R8-1 · R8-2</span></span></summary><div class="dl">${ADV.선택지추천.이유.map(x => `<div><span>${esc(x)}</span><span></span></div>`).join('')}</div></details>` : ''}
+    <details><summary>코드가 찾은 확인 사항 ${todo.length}개</summary><ul class="ck">${todo.map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>
+    <details><summary>추정·가정으로 채운 값 ${est.length}개</summary><div class="dl">${est.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div></details>
+    <details><summary>적용된 판단 규칙 ${D.규칙.length}개</summary><div class="dl">${D.규칙.map(r => `<div><span><span class="rn" style="margin-left:0">${esc(r.번호)}</span></span><span style="font-weight:500">${esc(r.내용)}</span></div>`).join('')}</div></details>
+  </div>
+  <p class="mapnote">기준일 ${esc(D.기준일)} · 모두 가상 데이터 · 데모</p>`;
+}
+
+/* ---------- 그리기 ---------- */
+function render() {
+  const app = $('#app'), isStaff = view === 'staff';
+  $('#steps').style.display = isStaff ? 'none' : ''; $('#nav').style.display = isStaff ? 'none' : '';
+  $('#steps').innerHTML = STEPS.map((n, i) => `<button data-step="${i + 1}" class="${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}" aria-current="${i + 1 === step ? 'step' : 'false'}"><b>${i + 1}</b>${n}</button>`).join('');
+  const lv = D.실시간, liveBar = !lv ? '' : `<div class="live">${lv.직접입력 ? '직접 입력한 값으로 계산한 결과예요' : '예시를 바꿔서 다시 계산한 결과예요'} · 입력값은 저장하지 않아요${lv.가정으로채운값 && lv.가정으로채운값.length ? ' · 가정: ' + lv.가정으로채운값.map(esc).join(', ') : ''}${AIWAIT ? ' · <b>AI 해석 준비 중</b>' : ''}${lv.예시 ? ` · <button data-id="${esc(lv.예시)}">처음 예시로</button>` : ''}</div>`;
+  app.innerHTML = `<div class="page ${dir < 0 ? 'back' : ''}">${liveBar}${isStaff ? staff() : [p1, p2, p3, p4, p5, p6][step - 1]()}</div>`;
+  $('#pv').disabled = step === 1; $('#nx').disabled = step === 6; $('#nx').textContent = step === 6 ? '끝' : `다음 · ${STEPS[step]}`;
+  countUp(app); reveal(app);
+  if (!isStaff && step === 6) drawQA();
+  if (!isStaff && step === 2) drawMap();
+  if (!isStaff && step === 5) { drawChart(false); const g = $('#gf'); if (g) requestAnimationFrame(() => requestAnimationFrame(() => g.style.strokeDashoffset = g.dataset.to)); }
+  $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === view));
+}
+function go(n, keepScroll) { dir = n >= step ? 1 : -1; step = Math.max(1, Math.min(6, n)); render(); if (!keepScroll) scrollTo({top: 0}); }
+async function load(id) {
+  D = await (await fetch(`data/${id}.json?t=${Date.now()}`)).json();
+  try { const r = await fetch(`data/ai_${id}.json?t=${Date.now()}`); AI = r.ok ? await r.json() : null; } catch (e) { AI = null; }
+  try { const r = await fetch(`data/advice_${id}.json?t=${Date.now()}`); ADV = r.ok ? await r.json() : null; } catch (e) { ADV = null; }
+  try { const r = await fetch(`data/qa_${id}.json?t=${Date.now()}`); QAFIX[id] = r.ok ? (await r.json()).답 : []; } catch (e) { QAFIX[id] = []; }
+  tab = '기본'; pick = 0; selMk = null; AIWAIT = false; AIERR = null; ERR = null; ++calcSeq; history.replaceState(null, '', '#' + id); render();
+}
+document.addEventListener('click', e => {
+  const pop = $('#pop'), d = e.target.closest('.dot');
+  if (d) { e.preventDefault(); e.stopPropagation(); const [m, s] = d.dataset.tip.split('|'); pop.innerHTML = `<b>${esc(m)}</b>${esc(s || '출처는 접힌 항목에서 볼 수 있어요')}`; const r = d.getBoundingClientRect(); pop.style.left = Math.max(12, Math.min(innerWidth - 332, r.left - 20)) + 'px'; pop.style.top = (r.bottom + 10) + 'px'; pop.classList.add('on'); return; }
+  pop.classList.remove('on');
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.q) return askQ(t.dataset.q);
+  if (t.dataset.scroll) { const o = $('.opt-card'); if (o) o.scrollIntoView({behavior: 'smooth', block: 'start'}); return; }
+  if (t.dataset.id) load(t.dataset.id);
+  else if (t.dataset.step) go(+t.dataset.step);
+  else if (t.id === 'pv') go(step - 1);
+  else if (t.id === 'nx') go(step + 1);
+  else if (t.dataset.view) { view = t.dataset.view; dir = 1; render(); scrollTo({top: 0}); }
+  else if (t.dataset.tab) { tab = t.dataset.tab; dir = 1; const y = scrollY; render(); scrollTo({top: y}); }
+  else if (t.dataset.pick) { pick = +t.dataset.pick;
+    if (API) calcLive(liveBody({listing_id: D.매물.선택[pick].id}));        // 매물을 바꾸면 그 매물로 전체를 다시 계산
+    else { dir = 1; const y = scrollY; render(); scrollTo({top: y}); } }
+  else if (t.dataset.calc) calcLive({input: FORM}, {step: 2});
+  else if (t.dataset.kind) { FORM.출점유형 = t.dataset.kind; dir = 1; const y = scrollY; render(); scrollTo({top: y}); }
+  else if (t.dataset.rearea) { if (selMk) { if (D.실시간 && D.실시간.직접입력) FORM.관심상권 = selMk; calcLive(liveBody({area: selMk})); } }
+  else if (t.dataset.mk) pickMk(t.dataset.mk);
+  else if (t.dataset.alert) { ALERTS.has(D.id) ? ALERTS.delete(D.id) : ALERTS.add(D.id); dir = 1; const y = scrollY; render(); scrollTo({top: y}); }
+  else if (t.id === 'play') drawChart(true);
+});
+document.addEventListener('input', e => { const f = e.target.dataset && e.target.dataset.f; if (f) FORM[f] = e.target.value; });
+document.addEventListener('change', e => { const f = e.target.dataset && e.target.dataset.f; if (f) FORM[f] = e.target.value; });
+addEventListener('keydown', e => { if (view !== 'owner' || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return; if (e.key === 'ArrowRight') go(step + 1); if (e.key === 'ArrowLeft') go(step - 1); });
+(async () => {
+  try { const o = await fetch('/api/options'); if (o.ok) { OPTS = await o.json(); API = true; } } catch (e) { API = false; }
+  try { IDX = await (await fetch('data/index.json?t=' + Date.now())).json(); const w = location.hash.slice(1); await load(IDX.some(m => m.id === w) ? w : IDX[0].id); }
+  catch (err) { $('#app').innerHTML = '<h1>데이터를 불러오지 못했어요</h1><p class="lead">python engine/export.py 를 실행한 뒤 웹 서버로 열어 주세요.</p>'; }
+})();
+</script>
+</body>
+</html>

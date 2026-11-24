@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" role="img" aria-label="Owner’s Plan">
+  <!-- 흰 배경용. 워드마크는 글꼴(Wanted Sans)로 그리므로, 글꼴이 없는 환경에서는 대체 글꼴로 보인다. -->
+  <circle cx="12" cy="33" r="9" fill="#6246E5"/><path d="M30 9 L50 17 L50 47 L30 55 Z" fill="#6246E5" stroke="#6246E5" stroke-width="6" stroke-linejoin="round"/>
+  <text x="72" y="44" font-family="'Wanted Sans Variable','Wanted Sans',Pretendard,-apple-system,'Segoe UI',sans-serif" font-size="34" font-weight="800" letter-spacing="-1.3" fill="#16171D">Owner’s Plan</text>
+</svg>
