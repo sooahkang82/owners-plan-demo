@@ -878,7 +878,7 @@ function staff() {
   ${o ? `<div class="cols" style="margin-top:30px">
     <div><div class="sh">근거 ${o.근거.length}개${rules.length ? `<span class="rn">${rules.map(esc).join(' · ')}</span>` : ''}</div>
       <ol class="pt">${o.근거.map((x, i) => { const [a, b] = cut1(x); return `<li><b>${i + 1}. ${esc(a)}</b>${b ? `<details><summary>자세히</summary><p>${esc(b)}</p></details>` : ''}</li>`; }).join('')}</ol></div>
-    <div><div class="sh">확인할 서류·질문 ${o.확인할것.length}개</div>
+    <div><div class="sh">사장님께 확인할 것 ${o.확인할것.length}개</div>
       <ul class="ck">${o.확인할것.map(x => { const [a, b] = cut1(x); return `<li><label><input type="checkbox"><span>${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</span></label></li>`; }).join('')}</ul></div>
   </div>` : ''}
   <div class="fold">
@@ -888,7 +888,7 @@ function staff() {
         ${c.선택 && c.선택.이유 ? `<p class="mapnote">왜 이 조합인가요: ${esc(c.선택.이유)}</p>` : ''}` : ''}</details>
     ${ADV && ADV.자격해석 && ADV.자격해석.length ? `<details><summary><span>AI 자격 해석 ${ADV.자격해석.length}건<span class="rn">R7-1</span></span></summary><div class="dl">${ADV.자격해석.map(x => `<div><span>${esc(x.상품코드)} ${esc(x.상품명)} · “${esc(x.인용)}”${x.법령 ? `<br>${esc(x.법령.법령명)} ${esc(x.법령.조문번호)} · “${esc(x.법령.인용문)}”` : ''}<br><span class="muted">${esc(x.이유)}</span></span><span>${st(x.AI판정)}</span></div>`).join('')}</div></details>` : ''}
     ${ADV && ADV.선택지추천 && ADV.선택지추천.추천 ? `<details><summary><span>사장님에게 보인 선택지 추천: ${esc(ADV.선택지추천.추천)}<span class="rn">R8-1 · R8-2</span></span></summary><div class="dl">${ADV.선택지추천.이유.map(x => `<div><span>${esc(x)}</span><span></span></div>`).join('')}</div></details>` : ''}
-    <details><summary>코드가 찾은 확인 사항 ${todo.length}개</summary><ul class="ck">${todo.map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>
+    <details><summary>그 밖에 확인할 것 ${todo.length}개</summary><ul class="ck">${todo.map(([a, b]) => `<li><label><input type="checkbox"><span>${esc(a)}<small>${esc(b)}</small></span></label></li>`).join('')}</ul></details>
     <details><summary>추정·가정으로 채운 값 ${est.length}개</summary><div class="dl">${est.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div></details>
     <details><summary>적용된 판단 규칙 ${D.규칙.length}개</summary><div class="dl">${D.규칙.map(r => `<div><span><span class="rn" style="margin-left:0">${esc(r.번호)}</span></span><span style="font-weight:500">${esc(r.내용)}</span></div>`).join('')}</div></details>
   </div>
